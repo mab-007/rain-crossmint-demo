@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "fe",
-    "slug": "fe",
+    "name": "StableCoin Wallet",
+    "slug": "stablecoin-wallet",
     "version": "1.0.0",
+    "scheme": "stablecoinwallet",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
