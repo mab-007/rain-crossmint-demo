@@ -3,8 +3,9 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useCrossmintAuth } from "@crossmint/client-sdk-react-native-ui";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View, StyleSheet } from "react-native";
 import { Home, DollarSign, CreditCard, History, PlusCircle, Send } from "lucide-react-native";
+import { BlurView } from "expo-blur";
 
 import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
@@ -42,6 +43,7 @@ function MainTabs() {
                 headerShown: false,
                 tabBarActiveTintColor: "#000",
                 tabBarInactiveTintColor: "#999",
+                tabBarShowLabel: false,
                 tabBarStyle: {
                     backgroundColor: "transparent",
                     borderTopWidth: 0,
@@ -53,6 +55,16 @@ function MainTabs() {
                     right: 0,
                     bottom: 0,
                 },
+                tabBarBackground: () => (
+                    <BlurView
+                        tint={route.name === "Transfer" ? "dark" : "light"}
+                        intensity={route.name === "Transfer" ? 0 : 80}
+                        style={[
+                            StyleSheet.absoluteFill,
+                            route.name === "Transfer" && { backgroundColor: "#05b959" }
+                        ]}
+                    />
+                ),
                 tabBarIcon: ({ color, size }) => {
                     if (route.name === "Account") {
                         return <Home size={size} color={color} />;

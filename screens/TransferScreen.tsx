@@ -9,12 +9,16 @@ import {
     ActivityIndicator,
     Linking,
     TextInput,
+    Image as RNImage
 } from "react-native";
-import { useWallet } from "@crossmint/client-sdk-react-native-ui";
+import { useWallet, useCrossmintAuth } from "@crossmint/client-sdk-react-native-ui";
+import { useNavigation } from "@react-navigation/native";
 import { Delete, X } from "lucide-react-native";
 
 export default function TransferScreen() {
     const { wallet } = useWallet();
+    const { user } = useCrossmintAuth();
+    const navigation = useNavigation<any>();
     const [amount, setAmount] = useState("0");
     const [recipient, setRecipient] = useState("");
     const [loading, setLoading] = useState(false);
@@ -74,6 +78,10 @@ export default function TransferScreen() {
         }
     };
 
+    const handleProfilePress = () => {
+        navigation.navigate("Profile");
+    };
+
     const NumpadButton = ({ value, label, icon: Icon }: { value?: string, label?: string, icon?: any }) => (
         <TouchableOpacity
             style={styles.numpadButton}
@@ -86,9 +94,30 @@ export default function TransferScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
+                {/* Header */}
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Transfer</Text>
+                    <TouchableOpacity onPress={handleProfilePress} style={styles.profileBtn}>
+                        <RNImage source={require('../assets/icon.png')} style={styles.avatarImage} />
+                    </TouchableOpacity>
+                </View>
+
                 {/* Amount Display */}
                 <View style={styles.amountContainer}>
                     <Text style={styles.amountText}>${amount}</Text>
+
+                    {/* Amount Suggestions */}
+                    <View style={styles.suggestionRow}>
+                        {['1', '10', '100'].map((val) => (
+                            <TouchableOpacity
+                                key={val}
+                                style={styles.suggestionBadge}
+                                onPress={() => setAmount(val)}
+                            >
+                                <Text style={styles.suggestionText}>${val}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
                 </View>
 
                 {/* Recipient Input (Overlay/Conditional) */}
@@ -157,7 +186,32 @@ export default function TransferScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#05b959" },
-    content: { flex: 1, paddingHorizontal: 24, justifyContent: 'space-between', paddingVertical: 40, paddingBottom: 100 },
+    content: { flex: 1, paddingHorizontal: 24, justifyContent: 'space-between', paddingBottom: 100 },
+
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24,
+        marginTop: 8,
+    },
+    headerTitle: {
+        fontSize: 32,
+        fontWeight: '800',
+        color: '#000',
+    },
+    profileBtn: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        overflow: 'hidden',
+        backgroundColor: 'rgba(0,0,0,0.05)',
+    },
+    avatarImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
 
     amountContainer: {
         alignItems: 'center',
@@ -166,6 +220,26 @@ const styles = StyleSheet.create({
     amountText: {
         fontSize: 80,
         fontWeight: '700',
+        color: '#000',
+        marginBottom: 16,
+    },
+    suggestionRow: {
+        flexDirection: 'row',
+        gap: 16,
+        width: '100%',
+        paddingHorizontal: 20,
+    },
+    suggestionBadge: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        paddingVertical: 12,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    suggestionText: {
+        fontSize: 16,
+        fontWeight: '600',
         color: '#000',
     },
 

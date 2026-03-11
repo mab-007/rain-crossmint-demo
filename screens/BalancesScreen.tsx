@@ -84,6 +84,14 @@ export default function BalancesScreen() {
                     Pull to refresh · Chain: Base Sepolia
                 </Text>
 
+                <View style={styles.accountCard}>
+                    <Text style={styles.accountLabel}>Account Details</Text>
+                    <View style={styles.accountRow}>
+                        <Text style={styles.accountInfo}>Account ••5430</Text>
+                        <Text style={styles.accountInfo}>Routing ••329</Text>
+                    </View>
+                </View>
+
                 {allTokens.length === 0 ? (
                     <View style={styles.emptyCard}>
                         <Text style={styles.emptyIcon}>💸</Text>
@@ -130,6 +138,34 @@ const styles = StyleSheet.create({
     loadingText: { marginTop: 12, color: "#666" },
 
     intro: { fontSize: 12, color: "#888", marginBottom: 16, textAlign: "center" },
+
+    accountCard: {
+        backgroundColor: "#fff",
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.06,
+        shadowRadius: 6,
+        elevation: 2,
+    },
+    accountLabel: {
+        fontSize: 12,
+        fontWeight: "700",
+        color: "#999",
+        textTransform: "uppercase",
+        marginBottom: 8,
+    },
+    accountRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
+    accountInfo: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#1a1a1a",
+    },
 
     tokenCard: {
         backgroundColor: "#fff",
