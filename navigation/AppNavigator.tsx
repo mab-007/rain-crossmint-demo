@@ -6,6 +6,8 @@ import { useCrossmintAuth } from "@crossmint/client-sdk-react-native-ui";
 import { ActivityIndicator, View, StyleSheet } from "react-native";
 import { Home, DollarSign, CreditCard, History, PlusCircle, Send } from "lucide-react-native";
 import { BlurView } from "expo-blur";
+import { StatusBar } from "expo-status-bar";
+import { useTheme } from "../context/ThemeContext";
 
 import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
@@ -16,8 +18,13 @@ import TransactionsScreen from "../screens/TransactionsScreen";
 import SendTxScreen from "../screens/SendTxScreen";
 import CardScreen from "../screens/CardScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import InsightsScreen from "../screens/InsightsScreen";
+import CashDetailsScreen from "../screens/CashDetailsScreen";
+import LandingScreen from "../screens/LandingScreen";
+import ExploreScreen from "../screens/ExploreScreen";
 
 export type RootStackParamList = {
+    Landing: undefined;
     Login: undefined;
     Main: undefined;
     Balances: undefined;
@@ -25,6 +32,9 @@ export type RootStackParamList = {
     Transactions: undefined;
     SendTx: undefined;
     Profile: undefined;
+    Insights: undefined;
+    CashDetails: undefined;
+    Explore: undefined;
 };
 
 export type MainTabParamList = {
@@ -37,12 +47,14 @@ const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function MainTabs() {
+    const { theme, colors } = useTheme();
+
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 headerShown: false,
-                tabBarActiveTintColor: "#000",
-                tabBarInactiveTintColor: "#999",
+                tabBarActiveTintColor: colors.text,
+                tabBarInactiveTintColor: colors.subtext,
                 tabBarShowLabel: false,
                 tabBarStyle: {
                     backgroundColor: "transparent",
@@ -57,11 +69,11 @@ function MainTabs() {
                 },
                 tabBarBackground: () => (
                     <BlurView
-                        tint={route.name === "Transfer" ? "dark" : "light"}
+                        tint={theme === "dark" || route.name === "Transfer" ? "dark" : "light"}
                         intensity={route.name === "Transfer" ? 0 : 80}
                         style={[
                             StyleSheet.absoluteFill,
-                            route.name === "Transfer" && { backgroundColor: "#05b959" }
+                            route.name === "Transfer" && { backgroundColor: colors.primary }
                         ]}
                     />
                 ),
@@ -85,31 +97,41 @@ function MainTabs() {
 
 export default function AppNavigator() {
     const { status } = useCrossmintAuth();
+    const { theme, colors } = useTheme();
 
     if (status === "initializing") {
         return (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                <ActivityIndicator size="large" color="#05b959" />
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: colors.background }}>
+                <ActivityIndicator size="large" color={colors.primary} />
             </View>
         );
     }
 
     return (
         <NavigationContainer>
+            <StatusBar style={theme === "dark" ? "light" : "dark"} />
             <Stack.Navigator
                 screenOptions={{
-                    headerStyle: { backgroundColor: "#fff" },
-                    headerTintColor: "#000",
+                    headerStyle: { backgroundColor: colors.card },
+                    headerTintColor: colors.text,
                     headerTitleStyle: { fontWeight: "700" },
                     headerShadowVisible: false,
+                    cardStyle: { backgroundColor: colors.background }
                 }}
             >
                 {status === "logged-out" ? (
-                    <Stack.Screen
-                        name="Login"
-                        component={LoginScreen}
-                        options={{ title: "StableCoin Wallet", headerShown: false }}
-                    />
+                    <>
+                        <Stack.Screen
+                            name="Landing"
+                            component={LandingScreen}
+                            options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                            name="Login"
+                            component={LoginScreen}
+                            options={{ title: "KennectFi", headerShown: false }}
+                        />
+                    </>
                 ) : (
                     <>
                         <Stack.Screen
@@ -140,6 +162,21 @@ export default function AppNavigator() {
                         <Stack.Screen
                             name="Profile"
                             component={ProfileScreen}
+                            options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                            name="Insights"
+                            component={InsightsScreen}
+                            options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                            name="CashDetails"
+                            component={CashDetailsScreen}
+                            options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                            name="Explore"
+                            component={ExploreScreen}
                             options={{ headerShown: false }}
                         />
                     </>

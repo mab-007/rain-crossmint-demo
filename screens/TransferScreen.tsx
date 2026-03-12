@@ -14,11 +14,13 @@ import {
 import { useWallet, useCrossmintAuth } from "@crossmint/client-sdk-react-native-ui";
 import { useNavigation } from "@react-navigation/native";
 import { Delete, X } from "lucide-react-native";
+import { useTheme } from "../context/ThemeContext";
 
 export default function TransferScreen() {
     const { wallet } = useWallet();
     const { user } = useCrossmintAuth();
     const navigation = useNavigation<any>();
+    const { theme, colors } = useTheme();
     const [amount, setAmount] = useState("0");
     const [recipient, setRecipient] = useState("");
     const [loading, setLoading] = useState(false);
@@ -87,16 +89,18 @@ export default function TransferScreen() {
             style={styles.numpadButton}
             onPress={() => value ? handleNumberPress(value) : (Icon ? handleDelete() : null)}
         >
-            {label ? <Text style={styles.numpadText}>{label}</Text> : (Icon && <Icon size={24} color="#000" />)}
+            <View style={styles.numpadButtonInner}>
+                {label ? <Text style={styles.numpadText}>{label}</Text> : (Icon && <Icon size={22} color="#1a1a1a" />)}
+            </View>
         </TouchableOpacity>
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.primary }]}>
             <View style={styles.content}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Transfer</Text>
+                    <Text style={[styles.headerTitle, { color: colors.card }]}>Transfer</Text>
                     <TouchableOpacity onPress={handleProfilePress} style={styles.profileBtn}>
                         <RNImage source={require('../assets/icon.png')} style={styles.avatarImage} />
                     </TouchableOpacity>
@@ -104,17 +108,17 @@ export default function TransferScreen() {
 
                 {/* Amount Display */}
                 <View style={styles.amountContainer}>
-                    <Text style={styles.amountText}>${amount}</Text>
+                    <Text style={[styles.amountText, { color: colors.card }]}>${amount}</Text>
 
                     {/* Amount Suggestions */}
                     <View style={styles.suggestionRow}>
                         {['1', '10', '100'].map((val) => (
                             <TouchableOpacity
                                 key={val}
-                                style={styles.suggestionBadge}
+                                style={[styles.suggestionBadge, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
                                 onPress={() => setAmount(val)}
                             >
-                                <Text style={styles.suggestionText}>${val}</Text>
+                                <Text style={[styles.suggestionText, { color: colors.card }]}>${val}</Text>
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -122,17 +126,17 @@ export default function TransferScreen() {
 
                 {/* Recipient Input (Overlay/Conditional) */}
                 {showRecipient && (
-                    <View style={styles.recipientContainer}>
+                    <View style={[styles.recipientContainer, { backgroundColor: colors.card }]}>
                         <View style={styles.recipientHeader}>
-                            <Text style={styles.recipientTitle}>To:</Text>
+                            <Text style={[styles.recipientTitle, { color: colors.text }]}>To:</Text>
                             <TouchableOpacity onPress={() => setShowRecipient(false)}>
-                                <X size={20} color="#000" />
+                                <X size={20} color={colors.text} />
                             </TouchableOpacity>
                         </View>
                         <TextInput
-                            style={styles.recipientInput}
+                            style={[styles.recipientInput, { color: colors.text, borderBottomColor: colors.border }]}
                             placeholder="0x... or email"
-                            placeholderTextColor="#666"
+                            placeholderTextColor={colors.subtext}
                             value={recipient}
                             onChangeText={setRecipient}
                             autoFocus
@@ -168,14 +172,14 @@ export default function TransferScreen() {
                 {/* Action Buttons */}
                 <View style={styles.actions}>
                     <TouchableOpacity
-                        style={[styles.payButton, loading && styles.disabled]}
+                        style={[styles.payButton, { backgroundColor: colors.card }, loading && styles.disabled]}
                         onPress={handlePay}
                         disabled={loading}
                     >
                         {loading ? (
-                            <ActivityIndicator color="#fff" />
+                            <ActivityIndicator color={colors.primary} />
                         ) : (
-                            <Text style={styles.payButtonText}>{showRecipient ? "Confirm Pay" : "Pay"}</Text>
+                            <Text style={[styles.payButtonText, { color: colors.primary }]}>{showRecipient ? "Confirm Pay" : "Pay"}</Text>
                         )}
                     </TouchableOpacity>
                 </View>
@@ -185,7 +189,7 @@ export default function TransferScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#05b959" },
+    container: { flex: 1 },
     content: { flex: 1, paddingHorizontal: 24, justifyContent: 'space-between', paddingBottom: 100 },
 
     header: {
@@ -282,10 +286,18 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    numpadButtonInner: {
+        width: 68,
+        height: 52,
+        borderRadius: 16,
+        backgroundColor: 'transparent',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     numpadText: {
         fontSize: 28,
         fontWeight: '600',
-        color: '#000',
+        color: 'rgba(0,0,0,0.25)',
     },
 
     actions: {

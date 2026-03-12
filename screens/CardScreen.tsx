@@ -1,24 +1,94 @@
-import React from "react";
-import { View, Text, StyleSheet, SafeAreaView, Image, Dimensions, TouchableOpacity } from "react-native";
+import React, { useRef, useCallback } from "react";
+import { View, Text, StyleSheet, SafeAreaView, Image, Dimensions, TouchableOpacity, Animated, Easing, StatusBar } from "react-native";
 import { useCrossmintAuth } from "@crossmint/client-sdk-react-native-ui";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { useTheme } from "../context/ThemeContext";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 export default function CardScreen() {
     const { user } = useCrossmintAuth();
     const navigation = useNavigation<any>();
+    const { theme, colors } = useTheme();
+
+    // Animation values using built-in RN Animated
+    const rotationY = useRef(new Animated.Value(0)).current;
+    const rotationX = useRef(new Animated.Value(0)).current;
+    const scale = useRef(new Animated.Value(0.8)).current;
+    const opacity = useRef(new Animated.Value(0)).current;
+
+    useFocusEffect(
+        useCallback(() => {
+            // Reset
+            rotationY.setValue(0);
+            rotationX.setValue(0);
+            scale.setValue(0.8);
+            opacity.setValue(0);
+
+            Animated.parallel([
+                // Fade in
+                Animated.timing(opacity, {
+                    toValue: 1,
+                    duration: 600,
+                    useNativeDriver: true,
+                }),
+                // Scale up with spring feel
+                Animated.spring(scale, {
+                    toValue: 1,
+                    friction: 6,
+                    tension: 40,
+                    useNativeDriver: true,
+                }),
+                // 360 rotate on Y axis — slow & elegant
+                Animated.timing(rotationY, {
+                    toValue: 1,
+                    duration: 2000,
+                    easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+                    useNativeDriver: true,
+                }),
+                // Subtle tilt on X axis
+                Animated.sequence([
+                    Animated.timing(rotationX, {
+                        toValue: 1,
+                        duration: 500,
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(rotationX, {
+                        toValue: -0.5,
+                        duration: 900,
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(rotationX, {
+                        toValue: 0,
+                        duration: 600,
+                        useNativeDriver: true,
+                    }),
+                ]),
+            ]).start();
+        }, [])
+    );
+
+    const spinY = rotationY.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg'],
+    });
+
+    const tiltX = rotationX.interpolate({
+        inputRange: [-0.5, 0, 1],
+        outputRange: ['-10deg', '0deg', '15deg'],
+    });
 
     const handleProfilePress = () => {
         navigation.navigate("Profile");
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme === "dark" ? colors.background : "#e5e2d9" }]}>
+            <StatusBar barStyle={theme === "dark" ? "light-content" : "dark-content"} />
             <View style={styles.content}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Card</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>Card</Text>
                     <TouchableOpacity onPress={handleProfilePress} style={styles.profileBtn}>
                         <Image source={require('../assets/icon.png')} style={styles.avatarImage} />
                     </TouchableOpacity>
@@ -26,12 +96,25 @@ export default function CardScreen() {
 
                 {/* Main Title */}
                 <View style={styles.titleContainer}>
-                    <Text style={styles.mainTitle}>Design a card{"\n"}unlike{"\n"}any other</Text>
+                    <Text style={[styles.mainTitle, { color: colors.text }]}>Design a card{"\n"}unlike{"\n"}any other</Text>
                 </View>
 
-                {/* Focused Vertical Card */}
+                {/* Focused Vertical Card with Animation */}
                 <View style={styles.cardWrapper}>
-                    <View style={styles.cardContainer}>
+                    <Animated.View
+                        style={[
+                            styles.cardContainer,
+                            {
+                                opacity,
+                                transform: [
+                                    { perspective: 1000 },
+                                    { scale },
+                                    { rotateY: spinY },
+                                    { rotateX: tiltX },
+                                ],
+                            },
+                        ]}
+                    >
                         <Image
                             source={require("../assets/card.png")}
                             style={styles.cardImage}
@@ -46,10 +129,21 @@ export default function CardScreen() {
                                 <View style={styles.chipLineVertical} />
                             </View>
                         </View>
-                    </View>
+                    </Animated.View>
                 </View>
 
-                <Text style={styles.footerText}>
+                {/* Explore CTA */}
+                <View style={styles.ctaContainer}>
+                    <TouchableOpacity
+                        style={styles.ctaButton}
+                        activeOpacity={0.8}
+                        onPress={() => navigation.navigate("Explore")}
+                    >
+                        <Text style={styles.ctaText}>Explore</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <Text style={[styles.footerText, { color: colors.subtext }]}>
                     Prepaid debit cards issued by Sutton Bank, Member FDIC.
                 </Text>
             </View>
@@ -60,28 +154,27 @@ export default function CardScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#e5e2d9",
     },
     content: {
         flex: 1,
         paddingHorizontal: 32,
+        paddingBottom: 90, // Account for absolute tab bar
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 8,
-        marginBottom: 24,
+        marginTop: 4,
+        marginBottom: 8,
     },
     headerTitle: {
-        fontSize: 32,
+        fontSize: 28,
         fontWeight: '800',
-        color: '#000',
     },
     profileBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         overflow: 'hidden',
         backgroundColor: 'rgba(0,0,0,0.05)',
     },
@@ -91,30 +184,28 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
     },
     titleContainer: {
-        marginTop: 10,
-        marginBottom: 30,
+        marginTop: 2,
+        marginBottom: 8,
     },
     mainTitle: {
-        fontSize: 48,
+        fontSize: 32,
         fontWeight: '500',
-        color: '#000',
-        lineHeight: 52,
+        lineHeight: 36,
         letterSpacing: -1,
     },
     cardWrapper: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'flex-end', // Position at bottom
-        overflow: 'hidden', // Clip the card
+        justifyContent: 'center',
+        overflow: 'hidden',
+        marginVertical: 4,
     },
     cardContainer: {
-        width: width * 0.85,
-        height: width * 1.4,
+        width: width * 0.65,
+        height: width * 1.0,
         borderRadius: 24,
         overflow: "hidden",
         backgroundColor: "#000",
-        position: 'relative',
-        bottom: -width * 0.28, // Hide ~20% of the card (1.4 * 0.2 = 0.28)
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 20 },
         shadowOpacity: 0.4,
@@ -131,10 +222,10 @@ const styles = StyleSheet.create({
         right: '10%',
     },
     chip: {
-        width: 60,
-        height: 48,
+        width: 44,
+        height: 34,
         backgroundColor: '#d4af37',
-        borderRadius: 10,
+        borderRadius: 8,
         borderWidth: 1,
         borderColor: 'rgba(0,0,0,0.1)',
         padding: 4,
@@ -153,11 +244,30 @@ const styles = StyleSheet.create({
         width: 1,
         backgroundColor: 'rgba(0,0,0,0.2)',
     },
+    ctaContainer: {
+        marginTop: 8,
+        marginBottom: 8,
+    },
+    ctaButton: {
+        backgroundColor: '#010101', // Rich Black
+        height: 52,
+        borderRadius: 26,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    ctaText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '600',
+    },
     footerText: {
-        fontSize: 11,
-        color: '#888',
+        fontSize: 10,
         textAlign: "center",
-        paddingBottom: 24,
-        marginTop: 40,
+        paddingBottom: 0,
     },
 });

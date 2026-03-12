@@ -11,6 +11,7 @@ import {
     ActivityIndicator,
     Linking,
 } from "react-native";
+import { useTheme } from "../context/ThemeContext";
 import { useWallet } from "@crossmint/client-sdk-react-native-ui";
 
 type TxResult = {
@@ -20,6 +21,7 @@ type TxResult = {
 
 export default function SendTxScreen() {
     const { wallet } = useWallet();
+    const { theme, colors } = useTheme();
     const [to, setTo] = useState("");
     const [value, setValue] = useState("");
     const [data, setData] = useState("");
@@ -68,26 +70,26 @@ export default function SendTxScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
                 {/* Info Banner */}
-                <View style={styles.banner}>
+                <View style={[styles.banner, { backgroundColor: theme === "dark" ? "rgba(30, 64, 175, 0.1)" : "#eff6ff", borderColor: theme === "dark" ? "#1e40af" : "#bfdbfe" }]}>
                     <Text style={styles.bannerIcon}>⚡</Text>
-                    <Text style={styles.bannerText}>
+                    <Text style={[styles.bannerText, { color: theme === "dark" ? "#60a5fa" : "#1e40af" }]}>
                         Send a raw EVM transaction. Value is in ETH. Data field is optional (hex calldata).
                     </Text>
                 </View>
 
-                <View style={styles.card}>
-                    <Text style={styles.cardTitle}>Send Transaction</Text>
-                    <Text style={styles.cardSubtitle}>Base Sepolia · Raw EVM Transaction</Text>
+                <View style={[styles.card, { backgroundColor: colors.card, shadowColor: colors.text }]}>
+                    <Text style={[styles.cardTitle, { color: colors.text }]}>Send Transaction</Text>
+                    <Text style={[styles.cardSubtitle, { color: colors.subtext }]}>Base Sepolia · Raw EVM Transaction</Text>
 
                     {/* To Address */}
-                    <Text style={styles.label}>To Address *</Text>
+                    <Text style={[styles.label, { color: colors.subtext }]}>To Address *</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                         placeholder="0x..."
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.subtext}
                         value={to}
                         onChangeText={setTo}
                         autoCapitalize="none"
@@ -96,11 +98,11 @@ export default function SendTxScreen() {
                     />
 
                     {/* Value */}
-                    <Text style={styles.label}>Value (ETH)</Text>
+                    <Text style={[styles.label, { color: colors.subtext }]}>Value (ETH)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                         placeholder="0.0"
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.subtext}
                         value={value}
                         onChangeText={setValue}
                         keyboardType="decimal-pad"
@@ -108,11 +110,11 @@ export default function SendTxScreen() {
                     />
 
                     {/* Calldata (optional) */}
-                    <Text style={styles.label}>Data (optional hex calldata)</Text>
+                    <Text style={[styles.label, { color: colors.subtext }]}>Data (optional hex calldata)</Text>
                     <TextInput
-                        style={[styles.input, styles.dataInput]}
+                        style={[styles.input, styles.dataInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                         placeholder="0x..."
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.subtext}
                         value={data}
                         onChangeText={setData}
                         autoCapitalize="none"
@@ -124,44 +126,44 @@ export default function SendTxScreen() {
 
                     {/* Summary */}
                     {(to || value) ? (
-                        <View style={styles.summaryBox}>
-                            <Text style={styles.summaryTitle}>Transaction Summary</Text>
+                        <View style={[styles.summaryBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                            <Text style={[styles.summaryTitle, { color: colors.subtext }]}>Transaction Summary</Text>
                             {to ? (
                                 <View style={styles.summaryRow}>
-                                    <Text style={styles.summaryLabel}>To:</Text>
-                                    <Text style={styles.summaryValue} numberOfLines={1}>
+                                    <Text style={[styles.summaryLabel, { color: colors.subtext }]}>To:</Text>
+                                    <Text style={[styles.summaryValue, { color: colors.text }]} numberOfLines={1}>
                                         {to}
                                     </Text>
                                 </View>
                             ) : null}
                             <View style={styles.summaryRow}>
-                                <Text style={styles.summaryLabel}>Value:</Text>
-                                <Text style={styles.summaryValue}>{value || "0"} ETH</Text>
+                                <Text style={[styles.summaryLabel, { color: colors.subtext }]}>Value:</Text>
+                                <Text style={[styles.summaryValue, { color: colors.text }]}>{value || "0"} ETH</Text>
                             </View>
                         </View>
                     ) : null}
 
                     <TouchableOpacity
-                        style={[styles.btn, loading && styles.btnDisabled]}
+                        style={[styles.btn, { backgroundColor: colors.primary }, loading && styles.btnDisabled]}
                         onPress={handleSend}
                         disabled={loading}
                     >
                         {loading ? (
-                            <ActivityIndicator color="#fff" />
+                            <ActivityIndicator color={colors.card} />
                         ) : (
-                            <Text style={styles.btnText}>⚡ Send Transaction</Text>
+                            <Text style={[styles.btnText, { color: colors.card }]}>⚡ Send Transaction</Text>
                         )}
                     </TouchableOpacity>
                 </View>
 
                 {txResult && (
-                    <View style={styles.successCard}>
-                        <Text style={styles.successTitle}>✅ Transaction Sent!</Text>
+                    <View style={[styles.successCard, { backgroundColor: theme === "dark" ? "rgba(21, 128, 61, 0.1)" : "#f0fdf4", borderColor: theme === "dark" ? colors.primary : "#86efac" }]}>
+                        <Text style={[styles.successTitle, { color: colors.primary }]}>✅ Transaction Sent!</Text>
 
                         {txResult.hash && (
                             <>
-                                <Text style={styles.hashLabel}>Transaction Hash</Text>
-                                <Text style={styles.hashValue} selectable>
+                                <Text style={[styles.hashLabel, { color: colors.subtext }]}>Transaction Hash</Text>
+                                <Text style={[styles.hashValue, { color: colors.text }]} selectable>
                                     {txResult.hash}
                                 </Text>
                             </>
@@ -169,10 +171,10 @@ export default function SendTxScreen() {
 
                         {txResult.explorerLink && (
                             <TouchableOpacity
-                                style={styles.explorerBtn}
+                                style={[styles.explorerBtn, { backgroundColor: colors.primary }]}
                                 onPress={() => Linking.openURL(txResult.explorerLink!)}
                             >
-                                <Text style={styles.explorerBtnText}>🔍 View on Block Explorer</Text>
+                                <Text style={[styles.explorerBtnText, { color: colors.card }]}>🔍 View on Block Explorer</Text>
                             </TouchableOpacity>
                         )}
                     </View>
@@ -183,7 +185,7 @@ export default function SendTxScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#f0fdf4" },
+    container: { flex: 1 },
     scroll: { padding: 20, paddingBottom: 40 },
 
     banner: {

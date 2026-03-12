@@ -1,0 +1,239 @@
+import React from "react";
+import {
+    View,
+    Text,
+    StyleSheet,
+    SafeAreaView,
+    TouchableOpacity,
+    ScrollView,
+    Dimensions,
+    Alert,
+    Image,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { ChevronLeft, ChevronRight, Plus, ArrowDownLeft } from "lucide-react-native";
+import { useTheme } from "../context/ThemeContext";
+
+const { height } = Dimensions.get("window");
+
+// Dummy transactions using actual image assets
+const DUMMY_TRANSACTIONS = [
+    { id: '1', name: 'Netflix', sub: 'Subscription', amount: '-$15.99', type: 'debit', date: 'Today, 12:45 PM', img: require('../assets/netflix.png'), bg: '#fff1f1' },
+    { id: '2', name: 'Apple TV+', sub: 'Subscription', amount: '-$9.99', type: 'debit', date: 'Yesterday, 10:00 AM', img: require('../assets/appletv.png'), bg: '#f5f5f7' },
+    { id: '3', name: 'Spotify', sub: 'Music', amount: '-$9.99', type: 'debit', date: 'Yesterday, 8:30 AM', img: require('../assets/spotify.png'), bg: '#f0fdf4' },
+    { id: '4', name: 'YouTube', sub: 'Subscription', amount: '-$13.99', type: 'debit', date: 'Oct 1, 9:00 AM', img: require('../assets/youtube.png'), bg: '#fff1f1' },
+    { id: '5', name: 'Salary Deposit', amount: '+$2,500.00', type: 'credit', date: 'Sep 30, 9:00 AM', sub: 'Direct Deposit', img: require('../assets/dollar.png'), bg: '#f0fdf4' },
+];
+
+export default function CashDetailsScreen() {
+    const navigation = useNavigation();
+    const { theme, colors } = useTheme();
+
+    return (
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            {/* Header */}
+            <View style={[styles.header, { backgroundColor: colors.background }]}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.backBtn, { backgroundColor: colors.card }]}>
+                    <ChevronLeft size={24} color={colors.text} />
+                </TouchableOpacity>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>Cash Details</Text>
+                <View style={{ width: 40 }} />
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+                {/* Hero Balance Card */}
+                <View style={[styles.heroSection, { backgroundColor: colors.card }]}>
+                    <Text style={[styles.balanceLabel, { color: colors.subtext }]}>Current Balance</Text>
+                    <Text style={[styles.balanceAmount, { color: colors.text }]}>$12,450.00</Text>
+                    <View style={[styles.interestBadge, { backgroundColor: theme === "dark" ? "rgba(5, 185, 89, 0.1)" : "#e8faf1" }]}>
+                        <Text style={[styles.interestText, { color: colors.primary }]}>+ $12.45 Interest this month</Text>
+                    </View>
+
+                    {/* Add Money + Withdraw buttons */}
+                    <View style={styles.heroButtonRow}>
+                        <TouchableOpacity
+                            style={[styles.heroBtn, { backgroundColor: colors.text }]}
+                            onPress={() => navigation.navigate("Fund" as never)}
+                        >
+                            <Plus size={16} color={colors.card} />
+                            <Text style={[styles.heroBtnText, { color: colors.card }]}>Add money</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.heroBtn, { backgroundColor: colors.background }]}
+                            onPress={() => Alert.alert("Withdraw", "Withdrawal feature coming soon!")}
+                        >
+                            <ArrowDownLeft size={16} color={colors.text} />
+                            <Text style={[styles.heroBtnSecText, { color: colors.text }]}>Withdraw</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {/* Recent Transactions - individual capsules */}
+                <Text style={[styles.txSectionTitle, { color: colors.text }]}>Recent transactions</Text>
+
+                {DUMMY_TRANSACTIONS.map((tx) => (
+                    <View key={tx.id} style={[styles.txCapsule, { backgroundColor: colors.card }]}>
+                        <View style={[styles.txIconCircle, { backgroundColor: theme === "dark" ? colors.background : tx.bg }]}>
+                            <Image source={tx.img} style={styles.txImg} resizeMode="contain" />
+                        </View>
+                        <View style={styles.txInfo}>
+                            <Text style={[styles.txName, { color: colors.text }]}>{tx.name}</Text>
+                            <Text style={[styles.txSub, { color: colors.subtext }]}>{tx.date}</Text>
+                        </View>
+                        <Text style={[styles.txAmount, { color: tx.type === 'credit' ? colors.primary : colors.text }]}>
+                            {tx.amount}
+                        </Text>
+                    </View>
+                ))}
+
+                {/* View all link */}
+                <TouchableOpacity
+                    style={styles.viewAllRow}
+                    onPress={() => navigation.navigate("Transactions" as never)}
+                >
+                    <Text style={[styles.viewAllText, { color: colors.primary }]}>View all transactions</Text>
+                    <ChevronRight size={16} color={colors.primary} />
+                </TouchableOpacity>
+            </ScrollView>
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: { flex: 1 },
+    header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: "700",
+    },
+    backBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    scrollContent: {
+        paddingHorizontal: 16,
+        paddingBottom: 100,
+        gap: 16,
+        paddingTop: 8,
+    },
+
+    // Hero card
+    heroSection: {
+        borderRadius: 32,
+        paddingVertical: 32,
+        paddingHorizontal: 24,
+        alignItems: "center",
+    },
+    balanceLabel: {
+        fontSize: 15,
+        marginBottom: 8,
+    },
+    balanceAmount: {
+        fontSize: 48,
+        fontWeight: "800",
+        letterSpacing: -1,
+    },
+    interestBadge: {
+        paddingHorizontal: 14,
+        paddingVertical: 7,
+        borderRadius: 20,
+        marginTop: 14,
+    },
+    interestText: {
+        fontSize: 14,
+        fontWeight: "600",
+    },
+    heroButtonRow: {
+        flexDirection: "row",
+        gap: 12,
+        marginTop: 24,
+        width: "100%",
+    },
+    heroBtn: {
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
+        height: 50,
+        borderRadius: 25,
+    },
+    heroBtnText: {
+        fontSize: 15,
+        fontWeight: "700",
+    },
+    heroBtnSecText: {
+        fontSize: 15,
+        fontWeight: "700",
+    },
+
+    // Individual capsule per transaction
+    txSectionTitle: {
+        fontSize: 17,
+        fontWeight: "700",
+        marginBottom: 12,
+        paddingHorizontal: 4,
+    },
+    txCapsule: {
+        flexDirection: "row",
+        alignItems: "center",
+        borderRadius: 18,
+        paddingVertical: 11,
+        paddingHorizontal: 16,
+        marginBottom: 6,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 6,
+        elevation: 1,
+    },
+    txRow: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    txIconCircle: {
+        width: 46,
+        height: 46,
+        borderRadius: 14,
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 14,
+        overflow: "hidden",
+    },
+    txImg: {
+        width: 28,
+        height: 28,
+    },
+    txInfo: { flex: 1 },
+    txName: {
+        fontSize: 15,
+        fontWeight: "600",
+    },
+    txSub: {
+        fontSize: 12,
+        marginTop: 2,
+    },
+    txAmount: {
+        fontSize: 15,
+        fontWeight: "600",
+    },
+    viewAllRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 12,
+        gap: 4,
+    },
+    viewAllText: {
+        fontSize: 14,
+        fontWeight: "600",
+    },
+});

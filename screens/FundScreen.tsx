@@ -12,12 +12,14 @@ import {
 import { useWallet } from "@crossmint/client-sdk-react-native-ui";
 import { useNavigation } from "@react-navigation/native";
 import { Delete, CheckCircle2, X } from "lucide-react-native";
+import { useTheme } from "../context/ThemeContext";
 
 const { width, height } = Dimensions.get("window");
 
 export default function FundScreen() {
     const { wallet } = useWallet();
     const navigation = useNavigation();
+    const { theme, colors } = useTheme();
     const [amount, setAmount] = useState("10");
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [errorMsg, setErrorMsg] = useState("");
@@ -65,57 +67,57 @@ export default function FundScreen() {
             style={styles.numpadButton}
             onPress={() => value ? handleNumberPress(value) : (Icon ? handleDelete() : null)}
         >
-            {label ? <Text style={styles.numpadText}>{label}</Text> : (Icon && <Icon size={24} color="#000" />)}
+            {label ? <Text style={[styles.numpadText, { color: colors.text }]}>{label}</Text> : (Icon && <Icon size={24} color={colors.text} />)}
         </TouchableOpacity>
     );
 
     if (status === "loading") {
         return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#05b959" />
-                <Text style={styles.statusText}>Adding ${amount} USDXM...</Text>
+            <View style={[styles.centered, { backgroundColor: colors.background }]}>
+                <ActivityIndicator size="large" color={colors.primary} />
+                <Text style={[styles.statusText, { color: colors.text }]}>Adding ${amount} USDXM...</Text>
             </View>
         );
     }
 
     if (status === "success") {
         return (
-            <View style={styles.centered}>
-                <CheckCircle2 size={80} color="#05b959" />
-                <Text style={styles.statusText}>Successfully added ${amount}!</Text>
-                <Text style={styles.subStatusText}>Returning to your account...</Text>
+            <View style={[styles.centered, { backgroundColor: colors.background }]}>
+                <CheckCircle2 size={80} color={colors.primary} />
+                <Text style={[styles.statusText, { color: colors.text }]}>Successfully added ${amount}!</Text>
+                <Text style={[styles.subStatusText, { color: colors.subtext }]}>Returning to your account...</Text>
             </View>
         );
     }
 
     if (status === "error") {
         return (
-            <View style={styles.centered}>
-                <X size={80} color="#ef4444" />
-                <Text style={styles.statusText}>Funding Failed</Text>
-                <Text style={styles.subStatusText}>{errorMsg}</Text>
-                <TouchableOpacity style={styles.retryBtn} onPress={() => setStatus("idle")}>
-                    <Text style={styles.retryBtnText}>Try Again</Text>
+            <View style={[styles.centered, { backgroundColor: colors.background }]}>
+                <X size={80} color={colors.danger} />
+                <Text style={[styles.statusText, { color: colors.text }]}>Funding Failed</Text>
+                <Text style={[styles.subStatusText, { color: colors.subtext }]}>{errorMsg}</Text>
+                <TouchableOpacity style={[styles.retryBtn, { backgroundColor: colors.text }]} onPress={() => setStatus("idle")}>
+                    <Text style={[styles.retryBtnText, { color: colors.card }]}>Try Again</Text>
                 </TouchableOpacity>
             </View>
         );
     }
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>
-                    <X size={24} color="#000" />
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <View style={[styles.header, { backgroundColor: colors.background }]}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.closeBtn, { backgroundColor: colors.card }]}>
+                    <X size={24} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Add Money</Text>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>Add Money</Text>
                 <View style={{ width: 24 }} />
             </View>
 
             <View style={styles.content}>
                 {/* Amount Display */}
                 <View style={styles.amountContainer}>
-                    <Text style={styles.amountText}>${amount}</Text>
-                    <Text style={styles.currencyLabel}>USDXM</Text>
+                    <Text style={[styles.amountText, { color: colors.text }]}>${amount}</Text>
+                    <Text style={[styles.currencyLabel, { color: colors.subtext }]}>USDXM</Text>
                 </View>
 
                 {/* Suggestions */}
@@ -123,10 +125,18 @@ export default function FundScreen() {
                     {["10", "50", "100"].map((v) => (
                         <TouchableOpacity
                             key={v}
-                            style={[styles.suggestionBtn, amount === v && styles.suggestionBtnActive]}
+                            style={[
+                                styles.suggestionBtn,
+                                { backgroundColor: colors.card, borderColor: colors.border },
+                                amount === v && [styles.suggestionBtnActive, { backgroundColor: colors.primary, borderColor: colors.primary }]
+                            ]}
                             onPress={() => setAmount(v)}
                         >
-                            <Text style={[styles.suggestionText, amount === v && styles.suggestionTextActive]}>${v}</Text>
+                            <Text style={[
+                                styles.suggestionText,
+                                { color: colors.text },
+                                amount === v && [styles.suggestionTextActive, { color: colors.card }]
+                            ]}>${v}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -156,8 +166,8 @@ export default function FundScreen() {
                 </View>
 
                 {/* Action Button */}
-                <TouchableOpacity style={styles.fundBtn} onPress={handleFund}>
-                    <Text style={styles.fundBtnText}>Add money</Text>
+                <TouchableOpacity style={[styles.fundBtn, { backgroundColor: colors.primary }]} onPress={handleFund}>
+                    <Text style={[styles.fundBtnText, { color: colors.card }]}>Add money</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -165,7 +175,7 @@ export default function FundScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#fff" },
+    container: { flex: 1 },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -264,7 +274,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
         padding: 40,
     },
     statusText: {

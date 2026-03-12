@@ -7,215 +7,204 @@ import {
     TouchableOpacity,
     Alert,
     ScrollView,
+    Switch,
 } from "react-native";
 import { useCrossmintAuth, useWallet } from "@crossmint/client-sdk-react-native-ui";
 import { useNavigation } from "@react-navigation/native";
-import { X, LogOut, User, Mail, Wallet, ChevronRight } from "lucide-react-native";
+import { X, LogOut, Mail, Wallet, ChevronRight, Shield, Bell, HelpCircle, Moon } from "lucide-react-native";
+import { useTheme } from "../context/ThemeContext";
 
 export default function ProfileScreen() {
     const { user, logout } = useCrossmintAuth();
     const { wallet } = useWallet();
     const navigation = useNavigation();
 
+    const initial = user?.email?.[0]?.toUpperCase() ?? "?";
+    const username = user?.email?.split('@')[0] || "User";
+
+    const { theme, toggleTheme, colors } = useTheme();
+
     const handleLogout = async () => {
-        Alert.alert("Logout", "Are you sure you want to logout?", [
+        Alert.alert("Log out", "Are you sure?", [
             { text: "Cancel", style: "cancel" },
-            {
-                text: "Logout",
-                style: "destructive",
-                onPress: async () => {
-                    try {
-                        logout();
-                    } catch {
-                        Alert.alert("Error", "Failed to logout. Please try again.");
-                    }
-                },
-            },
+            { text: "Log out", style: "destructive", onPress: () => { try { logout(); } catch { } } },
         ]);
     };
 
+    const SettingsRow = ({ icon: Icon, label, sublabel, color = colors.text, onPress, isDestructive = false, rightElement }: any) => (
+        <TouchableOpacity style={styles.settingsRow} onPress={onPress} activeOpacity={0.7} disabled={!onPress}>
+            <View style={[styles.settingsIconBox, { backgroundColor: isDestructive ? '#fff0f0' : colors.background }]}>
+                <Icon size={18} color={isDestructive ? colors.danger : color} />
+            </View>
+            <View style={styles.settingsRowText}>
+                <Text style={[styles.settingsLabel, { color: isDestructive ? colors.danger : colors.text }]}>{label}</Text>
+                {sublabel && <Text style={[styles.settingsSublabel, { color: colors.subtext }]} numberOfLines={1} ellipsizeMode="middle">{sublabel}</Text>}
+            </View>
+            {rightElement ? rightElement : <ChevronRight size={18} color={colors.subtext} />}
+        </TouchableOpacity>
+    );
+
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>
-                    <X size={24} color="#000" />
+            {/* Header */}
+            <View style={[styles.header, { backgroundColor: colors.background }]}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.closeBtn, { backgroundColor: colors.card }]}>
+                    <X size={22} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Profile</Text>
-                <View style={{ width: 24 }} />
+                <Text style={[styles.headerTitle, { color: colors.text }]}>Profile</Text>
+                <View style={{ width: 40 }} />
             </View>
 
-            <ScrollView contentContainerStyle={styles.scroll}>
+            <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+                {/* Avatar + Name */}
                 <View style={styles.profileHeader}>
-                    <View style={styles.avatarLarge}>
-                        <Text style={styles.avatarTextLarge}>
-                            {user?.email?.[0]?.toUpperCase() ?? "?"}
-                        </Text>
+                    <View style={[styles.avatarCircle, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
+                        <Text style={styles.avatarText}>{initial}</Text>
                     </View>
-                    <Text style={styles.userName}>{user?.email?.split('@')[0] || "User"}</Text>
-                    <Text style={styles.userEmail}>{user?.email}</Text>
+                    <Text style={[styles.userName, { color: colors.text }]}>{username}</Text>
+                    <Text style={[styles.userEmail, { color: colors.subtext }]}>{user?.email}</Text>
                 </View>
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Account Information</Text>
-                    <View style={styles.infoCard}>
-                        <View style={styles.infoRow}>
-                            <View style={styles.infoLeft}>
-                                <Mail size={20} color="#666" />
-                                <Text style={styles.infoLabel}>Email</Text>
-                            </View>
-                            <Text style={styles.infoValue}>{user?.email}</Text>
-                        </View>
-                        <View style={styles.divider} />
-                        <View style={styles.infoRow}>
-                            <View style={styles.infoLeft}>
-                                <Wallet size={20} color="#666" />
-                                <Text style={styles.infoLabel}>Wallet Address</Text>
-                            </View>
-                            <Text style={styles.infoValue} numberOfLines={1} ellipsizeMode="middle">
-                                {wallet?.address}
-                            </Text>
-                        </View>
-                    </View>
+                {/* Account Settings */}
+                <Text style={[styles.sectionLabel, { color: colors.subtext }]}>ACCOUNT</Text>
+                <View style={[styles.settingsCard, { backgroundColor: colors.card, shadowColor: colors.text }]}>
+                    <SettingsRow
+                        icon={Mail}
+                        label="Email"
+                        sublabel={user?.email}
+                        color={colors.subtext}
+                    />
+                    <View style={[styles.rowDivider, { backgroundColor: colors.border }]} />
+                    <SettingsRow
+                        icon={Wallet}
+                        label="Wallet Address"
+                        sublabel={wallet?.address}
+                        color={colors.subtext}
+                    />
                 </View>
 
-                <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-                    <LogOut size={20} color="#ef4444" />
-                    <Text style={styles.logoutText}>Log Out</Text>
-                </TouchableOpacity>
+                {/* Security & Preferences */}
+                <Text style={[styles.sectionLabel, { color: colors.subtext }]}>PREFERENCES</Text>
+                <View style={[styles.settingsCard, { backgroundColor: colors.card, shadowColor: colors.text }]}>
+                    <SettingsRow
+                        icon={Moon}
+                        label="Dark Mode"
+                        color={colors.text}
+                        rightElement={
+                            <Switch
+                                value={theme === "dark"}
+                                onValueChange={toggleTheme}
+                                trackColor={{ false: "#ccc", true: colors.primary }}
+                                thumbColor="#fff"
+                            />
+                        }
+                    />
+                    <View style={[styles.rowDivider, { backgroundColor: colors.border }]} />
+                    <SettingsRow icon={Shield} label="Security" color="#4F80FF" />
+                    <View style={[styles.rowDivider, { backgroundColor: colors.border }]} />
+                    <SettingsRow icon={Bell} label="Notifications" color="#FF9F0A" />
+                    <View style={[styles.rowDivider, { backgroundColor: colors.border }]} />
+                    <SettingsRow icon={HelpCircle} label="Help & Support" color="#30B0C7" />
+                </View>
 
-                <Text style={styles.versionText}>StableCoin v1.0.0</Text>
+                {/* Logout */}
+                <View style={[styles.settingsCard, { backgroundColor: colors.card, shadowColor: colors.text }]}>
+                    <SettingsRow
+                        icon={LogOut}
+                        label="Log Out"
+                        color={colors.danger}
+                        isDestructive
+                        onPress={handleLogout}
+                    />
+                </View>
+
+                <Text style={[styles.versionText, { color: colors.subtext }]}>StableCoin v1.0.0 · Base Sepolia</Text>
             </ScrollView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#f6f6f6" },
+    container: { flex: 1 },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: '#fff',
     },
-    headerTitle: {
-        fontSize: 17,
-        fontWeight: '700',
-        color: '#000',
-    },
-    closeBtn: {
-        padding: 4,
-    },
-    scroll: { padding: 20 },
+    headerTitle: { fontSize: 20, fontWeight: '700', color: '#000' },
+    closeBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
+
+    scroll: { paddingHorizontal: 20, paddingBottom: 60 },
+
     profileHeader: {
         alignItems: 'center',
-        marginBottom: 32,
-        marginTop: 10,
+        paddingVertical: 28,
     },
-    avatarLarge: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: '#e2e2e2',
+    avatarCircle: {
+        width: 88,
+        height: 88,
+        borderRadius: 44,
+        backgroundColor: '#05b959',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 16,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
+        shadowColor: '#05b959',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 16,
+        elevation: 8,
     },
-    avatarTextLarge: {
-        fontSize: 40,
+    avatarText: { fontSize: 36, fontWeight: '800', color: '#fff' },
+    userName: { fontSize: 22, fontWeight: '800', color: '#000', marginBottom: 4 },
+    userEmail: { fontSize: 14, color: '#aaa', fontWeight: '500' },
+
+    sectionLabel: {
+        fontSize: 11,
         fontWeight: '700',
-        color: '#666',
-    },
-    userName: {
-        fontSize: 24,
-        fontWeight: '800',
-        color: '#000',
-        marginBottom: 4,
-    },
-    userEmail: {
-        fontSize: 14,
-        color: '#666',
-        fontWeight: '500',
-    },
-    section: {
-        marginBottom: 24,
-    },
-    sectionTitle: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: '#999',
-        textTransform: 'uppercase',
-        marginBottom: 12,
+        color: '#aaa',
+        letterSpacing: 1,
+        marginBottom: 10,
         marginLeft: 4,
+        marginTop: 4,
     },
-    infoCard: {
+    settingsCard: {
         backgroundColor: '#fff',
         borderRadius: 20,
-        paddingHorizontal: 16,
+        overflow: 'hidden',
+        marginBottom: 20,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 10,
         elevation: 2,
     },
-    infoRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 16,
-    },
-    infoLeft: {
+    settingsRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 14,
     },
-    infoLabel: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#000',
-        marginLeft: 12,
-    },
-    infoValue: {
-        fontSize: 14,
-        color: '#666',
-        flex: 1,
-        textAlign: 'right',
-        marginLeft: 20,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: '#f0f0f0',
-    },
-    logoutBtn: {
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        borderRadius: 20,
-        padding: 16,
+    settingsIconBox: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 10,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2,
+        marginRight: 14,
     },
-    logoutText: {
-        color: '#ef4444',
-        fontSize: 16,
-        fontWeight: '700',
-        marginLeft: 10,
-    },
+    settingsRowText: { flex: 1 },
+    settingsLabel: { fontSize: 16, fontWeight: '600', color: '#000' },
+    settingsSublabel: { fontSize: 12, color: '#aaa', marginTop: 2 },
+
+    rowDivider: { height: 1, backgroundColor: '#f5f5f5', marginLeft: 66 },
+
     versionText: {
         textAlign: 'center',
         color: '#ccc',
         fontSize: 12,
-        marginTop: 40,
+        marginTop: 12,
         marginBottom: 20,
     },
 });

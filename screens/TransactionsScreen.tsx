@@ -11,6 +11,7 @@ import {
     TouchableOpacity,
     Linking,
 } from "react-native";
+import { useTheme } from "../context/ThemeContext";
 import { useWallet } from "@crossmint/client-sdk-react-native-ui";
 
 type Transaction = {
@@ -38,6 +39,7 @@ const STATUS_ICONS: Record<string, string> = {
 
 export default function TransactionsScreen() {
     const { wallet } = useWallet();
+    const { theme, colors } = useTheme();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -76,15 +78,15 @@ export default function TransactionsScreen() {
 
     if (loading) {
         return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#05b959" />
-                <Text style={styles.loadingText}>Loading transactions...</Text>
+            <View style={[styles.centered, { backgroundColor: colors.background }]}>
+                <ActivityIndicator size="large" color={colors.primary} />
+                <Text style={[styles.loadingText, { color: colors.subtext }]}>Loading transactions...</Text>
             </View>
         );
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <FlatList
                 data={transactions}
                 keyExtractor={(item) => item.id ?? Math.random().toString()}
@@ -93,20 +95,20 @@ export default function TransactionsScreen() {
                     <RefreshControl
                         refreshing={refreshing}
                         onRefresh={onRefresh}
-                        tintColor="#05b959"
+                        tintColor={colors.primary}
                     />
                 }
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
                         <Text style={styles.emptyIcon}>📭</Text>
-                        <Text style={styles.emptyText}>No transactions yet</Text>
-                        <Text style={styles.emptySubText}>
+                        <Text style={[styles.emptyText, { color: colors.text }]}>No transactions yet</Text>
+                        <Text style={[styles.emptySubText, { color: colors.subtext }]}>
                             Transfer tokens or send a transaction to get started
                         </Text>
                     </View>
                 }
                 ListHeaderComponent={
-                    <Text style={styles.headerText}>
+                    <Text style={[styles.headerText, { color: colors.subtext }]}>
                         {transactions.length} transaction{transactions.length !== 1 ? "s" : ""} found
                         · Pull to refresh
                     </Text>
@@ -118,7 +120,7 @@ export default function TransactionsScreen() {
 
                     return (
                         <TouchableOpacity
-                            style={styles.txCard}
+                            style={[styles.txCard, { backgroundColor: colors.card, shadowColor: colors.text }]}
                             onPress={() => {
                                 if (item.explorerLink) Linking.openURL(item.explorerLink);
                             }}
@@ -127,10 +129,10 @@ export default function TransactionsScreen() {
                             <View style={styles.txRow}>
                                 <Text style={styles.txIcon}>{statusIcon}</Text>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={styles.txId} numberOfLines={1}>
+                                    <Text style={[styles.txId, { color: colors.text }]} numberOfLines={1}>
                                         ID: {item.id}
                                     </Text>
-                                    <Text style={styles.txDate}>{formatDate(item.createdAt)}</Text>
+                                    <Text style={[styles.txDate, { color: colors.subtext }]}>{formatDate(item.createdAt)}</Text>
                                 </View>
                                 <View style={[styles.statusBadge, { backgroundColor: `${statusColor}20` }]}>
                                     <Text style={[styles.txStatus, { color: statusColor }]}>
@@ -141,10 +143,10 @@ export default function TransactionsScreen() {
 
                             {item.hash && (
                                 <View style={styles.txHashRow}>
-                                    <Text style={styles.txHashLabel}>Hash: </Text>
-                                    <Text style={styles.txHash}>{truncateHash(item.hash)}</Text>
+                                    <Text style={[styles.txHashLabel, { color: colors.subtext }]}>Hash: </Text>
+                                    <Text style={[styles.txHash, { color: colors.text }]}>{truncateHash(item.hash)}</Text>
                                     {item.explorerLink && (
-                                        <Text style={styles.txLink}> → View</Text>
+                                        <Text style={[styles.txLink, { color: colors.primary }]}> → View</Text>
                                     )}
                                 </View>
                             )}
@@ -157,7 +159,7 @@ export default function TransactionsScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#f0fdf4" },
+    container: { flex: 1 },
     list: { padding: 20, paddingBottom: 40 },
     centered: { flex: 1, justifyContent: "center", alignItems: "center" },
     loadingText: { marginTop: 12, color: "#666" },
