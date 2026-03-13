@@ -21,6 +21,7 @@ export default function FundScreen() {
     const navigation = useNavigation();
     const { theme, colors } = useTheme();
     const [amount, setAmount] = useState("10");
+    const [selectedWallet, setSelectedWallet] = useState<"USD" | "PHP">("USD");
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [errorMsg, setErrorMsg] = useState("");
 
@@ -50,7 +51,14 @@ export default function FundScreen() {
 
         setStatus("loading");
         try {
-            await wallet.stagingFund(num);
+            if (selectedWallet === "USD") {
+                await wallet.stagingFund(num);
+            } else {
+                // Mocking PHP funding for staging
+                // In a real scenario, this might call a different endpoint or use a different token symbol
+                console.log(`Mocking PHP funding: ${num} PHP`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
             setStatus("success");
             // Auto-navigate back after 2 seconds
             setTimeout(() => {
@@ -133,13 +141,39 @@ export default function FundScreen() {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.closeBtn, { backgroundColor: colors.card }]}>
                     <ChevronLeft size={24} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.text }]}>Add money</Text>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>Invest now</Text>
             </View>
 
             <View style={styles.content}>
+                {/* Wallet Selector */}
+                <View style={styles.walletSelector}>
+                    <TouchableOpacity
+                        style={[
+                            styles.walletOption,
+                            { backgroundColor: colors.card, borderColor: colors.border },
+                            selectedWallet === "USD" && { backgroundColor: colors.primary + '15', borderColor: colors.primary }
+                        ]}
+                        onPress={() => setSelectedWallet("USD")}
+                    >
+                        <Text style={[styles.walletOptionText, { color: colors.text }, selectedWallet === "USD" && { color: colors.primary }]}>USD Wallet</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[
+                            styles.walletOption,
+                            { backgroundColor: colors.card, borderColor: colors.border },
+                            selectedWallet === "PHP" && { backgroundColor: colors.primary + '15', borderColor: colors.primary }
+                        ]}
+                        onPress={() => setSelectedWallet("PHP")}
+                    >
+                        <Text style={[styles.walletOptionText, { color: colors.text }, selectedWallet === "PHP" && { color: colors.primary }]}>PHP Wallet</Text>
+                    </TouchableOpacity>
+                </View>
+
                 {/* Amount Display */}
                 <View style={styles.amountContainer}>
-                    <Text style={[styles.amountText, { color: colors.text }]}>${amount}</Text>
+                    <Text style={[styles.amountText, { color: colors.text }]}>
+                        {selectedWallet === "USD" ? "$" : "₱"}{amount}
+                    </Text>
                 </View>
 
                 {/* Suggestions */}
@@ -158,7 +192,7 @@ export default function FundScreen() {
                                 styles.suggestionText,
                                 { color: colors.text },
                                 amount === v && [styles.suggestionTextActive, { color: colors.card }]
-                            ]}>${v}</Text>
+                            ]}>{selectedWallet === "USD" ? "$" : "₱"}{v}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -216,6 +250,22 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    walletSelector: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 12,
+        marginTop: 10,
+    },
+    walletOption: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        borderWidth: 1,
+    },
+    walletOptionText: {
+        fontSize: 14,
+        fontWeight: '600',
     },
     content: { flex: 1, paddingHorizontal: 24, justifyContent: 'space-between', paddingBottom: 100 },
 

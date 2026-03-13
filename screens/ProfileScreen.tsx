@@ -54,7 +54,7 @@ export default function ProfileScreen() {
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={[styles.header, { backgroundColor: colors.background }]}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.closeBtn, { backgroundColor: colors.card }]}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>
                     <X size={22} color={colors.text} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: colors.text }]}>Profile</Text>
@@ -114,7 +114,12 @@ export default function ProfileScreen() {
                     <View style={[styles.rowDivider, { backgroundColor: colors.border }]} />
                     <SettingsRow icon={Bell} label="Notifications" color="#FF9F0A" />
                     <View style={[styles.rowDivider, { backgroundColor: colors.border }]} />
-                    <SettingsRow icon={HelpCircle} label="Help & Support" color="#30B0C7" />
+                    <SettingsRow
+                        icon={HelpCircle}
+                        label="Help & Support"
+                        color="#30B0C7"
+                        onPress={() => navigation.navigate("HelpSupport" as never)}
+                    />
                 </View>
 
                 <Text style={[styles.sectionLabel, { color: colors.subtext }]}>APP SETTINGS</Text>

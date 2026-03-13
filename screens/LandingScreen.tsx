@@ -107,16 +107,52 @@ const CardStack = () => {
                 <LinearGradient colors={["#3b82f6", "#1d4ed8"]} style={styles.cardGradient} />
             </Animated.View>
             <Animated.View style={[styles.card, styles.card1, getCardStyle(0)]}>
-                <LinearGradient colors={["#ec4899", "#be185d"]} style={styles.cardGradient}>
-                    <View style={styles.cardContent}>
-                        <View style={styles.cardChip} />
-                        <Text style={styles.cardNumber}>**** **** **** 3190</Text>
-                        <View style={styles.cardBottom}>
-                            <Text style={styles.cardHolder}>KENNECTFI USER</Text>
-                            <Text style={styles.cardExp}>09/29</Text>
+                <View style={[styles.cardGradient, {
+                    backgroundColor: '#121212',
+                    borderColor: 'rgba(255,255,255,0.15)',
+                    borderWidth: 1,
+                    borderRadius: 20,
+                    overflow: 'hidden'
+                }]}>
+                    {/* Top Section */}
+                    <View style={styles.landingCardSectionTop}>
+                        <LinearGradient
+                            colors={['#1A1A1A', '#252525']}
+                            style={StyleSheet.absoluteFill}
+                        />
+                    </View>
+                    {/* Middle Section: Brushed Metal Band */}
+                    <View style={styles.landingCardSectionMiddle}>
+                        <LinearGradient
+                            colors={['#2A2A2A', '#3A3A3A', '#2A2A2A', '#4A4A4A', '#2A2A2A']}
+                            style={StyleSheet.absoluteFill}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                        />
+                        <View style={styles.landingChip}>
+                            <LinearGradient
+                                colors={['#FFD700', '#E5C100', '#B8860B']}
+                                style={StyleSheet.absoluteFill}
+                            />
                         </View>
                     </View>
-                </LinearGradient>
+                    {/* Bottom Section */}
+                    <View style={styles.landingCardSectionBottom}>
+                        <LinearGradient
+                            colors={['#252525', '#1A1A1A']}
+                            style={StyleSheet.absoluteFill}
+                        />
+                        <Text style={styles.landingCardNumber}>**** **** **** 3190</Text>
+                    </View>
+                    {/* Premium Shine Overlay */}
+                    <LinearGradient
+                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0)']}
+                        style={StyleSheet.absoluteFill}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        pointerEvents="none"
+                    />
+                </View>
             </Animated.View>
         </View>
     );
@@ -521,6 +557,41 @@ const styles = StyleSheet.create({
     card1: {},
     card2: {},
     card3: {},
+    landingCardSectionTop: {
+        height: '30%',
+        width: '100%',
+        borderBottomWidth: 0.5,
+        borderBottomColor: 'rgba(255,255,255,0.1)',
+    },
+    landingCardSectionMiddle: {
+        height: '40%',
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        paddingHorizontal: 16,
+    },
+    landingCardSectionBottom: {
+        height: '30%',
+        width: '100%',
+        justifyContent: 'center',
+        paddingHorizontal: 16,
+        borderTopWidth: 0.5,
+        borderTopColor: 'rgba(255,255,255,0.1)',
+    },
+    landingChip: {
+        width: 36,
+        height: 26,
+        borderRadius: 4,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.1)',
+    },
+    landingCardNumber: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '700',
+        letterSpacing: 1,
+    },
     // Realistic Coin Stack Styles
     coinStackContainer: {
         width: 200,

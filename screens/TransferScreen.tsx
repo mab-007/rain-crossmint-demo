@@ -23,8 +23,29 @@ export default function TransferScreen() {
     const { theme, colors } = useTheme();
     const [amount, setAmount] = useState("0");
     const [recipient, setRecipient] = useState("");
+    const [selectedWallet, setSelectedWallet] = useState<"USD" | "PHP">("USD");
+    const [usdBalance, setUsdBalance] = useState<number>(0);
+    const [phpBalance, setPhpBalance] = useState<number>(0);
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState<"amount" | "recipient" | "confirm">("amount");
+
+    React.useEffect(() => {
+        const fetchBalances = async () => {
+            if (!wallet) return;
+            try {
+                const result = await wallet.balances(["usdc", "usdxm"]);
+                // @ts-ignore
+                const tokens = result.tokens || [];
+                const usdxmToken = tokens.find((t: any) => t.symbol?.toUpperCase() === "USDXM");
+                setUsdBalance(usdxmToken ? parseFloat(usdxmToken.amount) : parseFloat(result.usdc?.amount || "0"));
+                // PHP is currently independent/mocked as per previous steps
+                setPhpBalance(90720.00);
+            } catch (err) {
+                console.error("Failed to fetch balances in TransferScreen:", err);
+            }
+        };
+        fetchBalances();
+    }, [wallet]);
 
     const truncateAddress = (addr: string) => {
         if (!addr) return "";
@@ -79,7 +100,8 @@ export default function TransferScreen() {
 
         setLoading(true);
         try {
-            const result = await wallet.send(recipient.trim(), "usdxm", amount);
+            const tokenSymbol = selectedWallet === "USD" ? "usdxm" : "php";
+            const result = await wallet.send(recipient.trim(), tokenSymbol, amount);
             Alert.alert("Success", "Transfer sent successfully!", [
                 { text: "View on Explorer", onPress: () => result.explorerLink && Linking.openURL(result.explorerLink) },
                 { text: "OK" }
@@ -123,19 +145,28 @@ export default function TransferScreen() {
 
                     {/* Amount Display */}
                     <View style={styles.amountContainer}>
-                        <Text style={styles.amountText}>${amount}</Text>
+                        <Text style={styles.amountText}>
+                            {selectedWallet === "USD" ? "$" : "₱"}{amount}
+                        </Text>
 
                         {step === "amount" && (
-                            <View style={styles.suggestionRow}>
-                                {['1', '10', '100'].map((val) => (
-                                    <TouchableOpacity
-                                        key={val}
-                                        style={[styles.suggestionBadge, { backgroundColor: 'rgba(0,0,0,0.05)' }]}
-                                        onPress={() => setAmount(val)}
-                                    >
-                                        <Text style={styles.suggestionText}>${val}</Text>
-                                    </TouchableOpacity>
-                                ))}
+                            <View style={styles.segmentedControl}>
+                                <TouchableOpacity
+                                    style={[styles.segment, selectedWallet === "USD" && styles.segmentActive]}
+                                    onPress={() => setSelectedWallet("USD")}
+                                    activeOpacity={0.8}
+                                >
+                                    <Text style={[styles.segmentText, selectedWallet === "USD" && styles.segmentTextActive]}>USD</Text>
+                                    <Text style={[styles.segmentBalance, selectedWallet === "USD" && styles.segmentBalanceActive]}>${usdBalance.toLocaleString()}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.segment, selectedWallet === "PHP" && styles.segmentActive]}
+                                    onPress={() => setSelectedWallet("PHP")}
+                                    activeOpacity={0.8}
+                                >
+                                    <Text style={[styles.segmentText, selectedWallet === "PHP" && styles.segmentTextActive]}>PHP</Text>
+                                    <Text style={[styles.segmentBalance, selectedWallet === "PHP" && styles.segmentBalanceActive]}>₱{phpBalance.toLocaleString()}</Text>
+                                </TouchableOpacity>
                             </View>
                         )}
 
@@ -262,7 +293,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     headerTitle: {
-        fontSize: 32,
+        fontSize: 30,
         fontWeight: '700',
         color: '#000000',
     },
@@ -290,24 +321,50 @@ const styles = StyleSheet.create({
         color: '#000000',
         marginBottom: 16,
     },
-    suggestionRow: {
+    segmentedControl: {
         flexDirection: 'row',
-        gap: 16,
-        width: '100%',
-        paddingHorizontal: 20,
-    },
-    suggestionBadge: {
-        flex: 1,
         backgroundColor: 'rgba(0,0,0,0.05)',
-        paddingVertical: 12,
-        borderRadius: 20,
+        borderRadius: 24,
+        padding: 4,
+        width: '70%',
+        marginTop: 10,
+    },
+    segment: {
+        flex: 1,
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        paddingVertical: 10,
+        borderRadius: 20,
+        gap: 8,
     },
-    suggestionText: {
-        fontSize: 16,
+    segmentActive: {
+        backgroundColor: '#1A1A1A',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    segmentText: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#000000',
+        opacity: 0.5,
+    },
+    segmentTextActive: {
+        color: '#ffffff',
+        opacity: 1,
+    },
+    segmentBalance: {
+        fontSize: 12,
         fontWeight: '600',
         color: '#000000',
+        opacity: 0.3,
+    },
+    segmentBalanceActive: {
+        color: '#ffffff',
+        opacity: 0.7,
     },
 
     recipientStepContainer: {

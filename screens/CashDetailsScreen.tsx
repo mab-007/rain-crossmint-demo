@@ -10,8 +10,9 @@ import {
     Alert,
     Image,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { ChevronLeft, ChevronRight, Plus, ArrowLeftRight, Wallet } from "lucide-react-native";
+import { useWallet } from "@crossmint/client-sdk-react-native-ui";
 import { useTheme } from "../context/ThemeContext";
 
 const { height } = Dimensions.get("window");
@@ -27,7 +28,41 @@ const DUMMY_TRANSACTIONS = [
 
 export default function CashDetailsScreen() {
     const navigation = useNavigation();
+    const { wallet } = useWallet();
     const { theme, colors } = useTheme();
+    const [usdBalance, setUsdBalance] = React.useState<number>(0);
+    const [phpBalance, setPhpBalance] = React.useState<number>(0);
+
+    const fetchBalances = React.useCallback(async () => {
+        if (!wallet) return;
+        try {
+            const result = await wallet.balances(["usdc", "usdxm"]);
+            // @ts-ignore
+            const tokens = result.tokens || [];
+
+            // USD Balance
+            // @ts-ignore
+            const usdxmToken = tokens.find((t: any) => t.symbol?.toUpperCase() === "USDXM");
+            const usdVal = usdxmToken ? parseFloat(usdxmToken.amount) : parseFloat(result.usdc?.amount || "0");
+            setUsdBalance(usdVal);
+
+            // PHP Balance
+            // @ts-ignore
+            const phpToken = tokens.find((t: any) => t.symbol?.toUpperCase() === "PHP");
+            setPhpBalance(phpToken ? parseFloat(phpToken.amount) : 0);
+        } catch (err) {
+            console.error("Failed to fetch balances in CashDetails:", err);
+        }
+    }, [wallet]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchBalances();
+        }, [fetchBalances])
+    );
+
+    const formattedUSD = usdBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formattedPHP = phpBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -37,26 +72,35 @@ export default function CashDetailsScreen() {
                     <ChevronLeft size={24} color={colors.text} />
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: colors.text }]}>Cash Details</Text>
-                <View style={{ width: 40 }} />
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
                 {/* Hero Balance Card */}
                 <View style={[styles.heroSection, { backgroundColor: colors.card }]}>
-                    <Text style={[styles.balanceLabel, { color: colors.subtext }]}>Current Balance</Text>
-                    <Text style={[styles.balanceAmount, { color: colors.text }]}>$12,450.00</Text>
+                    <View style={styles.walletsRow}>
+                        <View style={styles.walletItem}>
+                            <Text style={[styles.balanceLabel, { color: colors.subtext }]}>USD Balance</Text>
+                            <Text style={[styles.balanceAmount, { color: colors.text }]}>${formattedUSD}</Text>
+                        </View>
+                        <View style={[styles.walletDivider, { backgroundColor: colors.border }]} />
+                        <View style={styles.walletItem}>
+                            <Text style={[styles.balanceLabel, { color: colors.subtext }]}>PHP Balance</Text>
+                            <Text style={[styles.balanceAmount, { color: colors.text }]}>₱{formattedPHP}</Text>
+                        </View>
+                    </View>
+
                     <View style={[styles.interestBadge, { backgroundColor: theme === "dark" ? "rgba(5, 185, 89, 0.1)" : "#e8faf1" }]}>
                         <Text style={[styles.interestText, { color: colors.primary }]}>+ $12.45 Interest this month</Text>
                     </View>
 
-                    {/* Add Money + Withdraw buttons */}
+                    {/* Add Money + Exchange buttons */}
                     <View style={styles.heroButtonRow}>
                         <TouchableOpacity
                             style={[styles.heroBtn, { backgroundColor: colors.text }]}
                             onPress={() => navigation.navigate("Fund" as never)}
                         >
                             <Plus size={16} color={colors.card} />
-                            <Text style={[styles.heroBtnText, { color: colors.card }]}>Add money</Text>
+                            <Text style={[styles.heroBtnText, { color: colors.card }]}>Invest now</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.heroBtn, { backgroundColor: colors.background }]}
@@ -119,13 +163,13 @@ const styles = StyleSheet.create({
     container: { flex: 1 },
     header: {
         flexDirection: "row",
-        justifyContent: "space-between",
         alignItems: "center",
         paddingHorizontal: 16,
         paddingVertical: 12,
+        gap: 12,
     },
     headerTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: "700",
     },
     backBtn: {
@@ -148,15 +192,36 @@ const styles = StyleSheet.create({
         paddingVertical: 32,
         paddingHorizontal: 24,
         alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
     },
     balanceLabel: {
-        fontSize: 15,
-        marginBottom: 8,
+        fontSize: 13,
+        marginBottom: 4,
     },
     balanceAmount: {
-        fontSize: 48,
-        fontWeight: "800",
-        letterSpacing: -1,
+        fontSize: 24,
+        fontWeight: '800',
+        letterSpacing: -0.5,
+    },
+    walletsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginBottom: 8,
+    },
+    walletItem: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    walletDivider: {
+        width: 1,
+        height: 40,
+        marginHorizontal: 12,
     },
     interestBadge: {
         paddingHorizontal: 14,
@@ -182,6 +247,11 @@ const styles = StyleSheet.create({
         gap: 6,
         height: 50,
         borderRadius: 25,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2,
     },
     heroBtnText: {
         fontSize: 15,

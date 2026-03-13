@@ -20,10 +20,16 @@ export default function ExchangeScreen() {
     const navigation = useNavigation();
     const { colors } = useTheme();
     const [amount, setAmount] = useState("0");
-    const [fromCurrency, setFromCurrency] = useState({ symbol: "USDXM", name: "USDXM Stablecoin" });
+    const [fromCurrency, setFromCurrency] = useState({ symbol: "USD", name: "USD Stablecoin" });
     const [toCurrency, setToCurrency] = useState({ symbol: "PHP", name: "Philippine Peso" });
     const [rate, setRate] = useState<number | null>(null);
     const [loadingRate, setLoadingRate] = useState(true);
+
+    const handleSwap = () => {
+        setFromCurrency(toCurrency);
+        setToCurrency(fromCurrency);
+        setAmount("0");
+    };
 
     useEffect(() => {
         const fetchRate = async () => {
@@ -73,7 +79,10 @@ export default function ExchangeScreen() {
         </TouchableOpacity>
     );
 
-    const convertedAmount = rate ? (parseFloat(amount) * rate).toFixed(2) : "0.00";
+    const isFromUSD = fromCurrency.symbol === "USD";
+    const convertedAmount = rate
+        ? (isFromUSD ? (parseFloat(amount) * rate) : (parseFloat(amount) / rate)).toFixed(2)
+        : "0.00";
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -98,17 +107,25 @@ export default function ExchangeScreen() {
                             </TouchableOpacity>
                         </View>
                         <View style={styles.amountInfo}>
-                            <Text style={[styles.amountValue, { color: colors.text }]}>${amount}</Text>
-                            <Text style={[styles.balanceText, { color: colors.subtext }]}>Balance: $12,450.00</Text>
+                            <Text style={[styles.amountValue, { color: colors.text }]}>
+                                {isFromUSD ? "$" : "₱"}{amount}
+                            </Text>
+                            <Text style={[styles.balanceText, { color: colors.subtext }]}>
+                                Balance: {isFromUSD ? "$12,450.00" : "₱90,720.00"}
+                            </Text>
                         </View>
                     </View>
 
                     {/* Divider with Icon */}
                     <View style={styles.dividerRow}>
                         <View style={[styles.divider, { backgroundColor: colors.border }]} />
-                        <View style={[styles.iconCircle, { backgroundColor: colors.primary }]}>
+                        <TouchableOpacity
+                            style={[styles.iconCircle, { backgroundColor: colors.primary }]}
+                            onPress={handleSwap}
+                            activeOpacity={0.7}
+                        >
                             <ArrowLeftRight size={16} color={colors.card} />
-                        </View>
+                        </TouchableOpacity>
                         <View style={[styles.divider, { backgroundColor: colors.border }]} />
                     </View>
 
@@ -122,7 +139,9 @@ export default function ExchangeScreen() {
                             </TouchableOpacity>
                         </View>
                         <View style={styles.amountInfo}>
-                            <Text style={[styles.amountValue, { color: colors.primary }]}>₱{convertedAmount}</Text>
+                            <Text style={[styles.amountValue, { color: colors.primary }]}>
+                                {!isFromUSD ? "$" : "₱"}{convertedAmount}
+                            </Text>
                             <View style={styles.rateRow}>
                                 {loadingRate ? (
                                     <ActivityIndicator size="small" color={colors.subtext} />
@@ -132,7 +151,11 @@ export default function ExchangeScreen() {
                                             <View style={styles.liveDot} />
                                             <Text style={[styles.liveText, { color: colors.primary }]}>Live</Text>
                                         </View>
-                                        <Text style={[styles.rateText, { color: colors.subtext }]}>1 USDXM = {rate?.toFixed(2)} PHP</Text>
+                                        <Text style={[styles.rateText, { color: colors.subtext }]}>
+                                            {isFromUSD
+                                                ? `1 USD = ${rate?.toFixed(2)} PHP`
+                                                : `1 PHP = ${(1 / (rate || 1)).toFixed(4)} USD`}
+                                        </Text>
                                     </>
                                 )}
                             </View>
@@ -212,6 +235,11 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         padding: 24,
         gap: 8,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
     },
     currencyRow: {
         flexDirection: 'row',

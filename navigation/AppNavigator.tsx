@@ -24,6 +24,7 @@ import LandingScreen from "../screens/LandingScreen";
 import ExploreScreen from "../screens/ExploreScreen";
 import CardSettingsScreen from "../screens/CardSettingsScreen";
 import ExchangeScreen from "../screens/ExchangeScreen";
+import HelpSupportScreen from "../screens/HelpSupportScreen";
 
 export type RootStackParamList = {
     Landing: undefined;
@@ -39,6 +40,7 @@ export type RootStackParamList = {
     Explore: undefined;
     CardSettings: undefined;
     Exchange: undefined;
+    HelpSupport: undefined;
 };
 
 const CurrencySymbol = ({ color, size }: { color: string; size: number }) => {
@@ -215,6 +217,11 @@ export default function AppNavigator() {
                         <Stack.Screen
                             name="Exchange"
                             component={ExchangeScreen}
+                            options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                            name="HelpSupport"
+                            component={HelpSupportScreen}
                             options={{ headerShown: false }}
                         />
                     </>

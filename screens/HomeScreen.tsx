@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
     View,
     Text,
@@ -10,7 +10,8 @@ import {
     ActivityIndicator,
     Platform,
     RefreshControl,
-    Image as RNImage
+    Image as RNImage,
+    Animated,
 } from "react-native";
 import { useCrossmintAuth, useWallet } from "@crossmint/client-sdk-react-native-ui";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -36,7 +37,8 @@ export default function HomeScreen() {
     const navigation = useNavigation<NavProp>();
     const { theme, colors } = useTheme();
 
-    const [balance, setBalance] = useState<string>("0.00");
+    const [usdBalance, setUsdBalance] = useState<number>(0);
+    const [phpBalance, setPhpBalance] = useState<number>(0);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -46,14 +48,22 @@ export default function HomeScreen() {
             const result = await wallet.balances(["usdc", "usdxm"]);
             // @ts-ignore
             const tokens = result.tokens || [];
+
+            // USD Balance (USDXM or USDC)
             // @ts-ignore
             const usdxmToken = tokens.find((t: any) => t.symbol?.toUpperCase() === "USDXM");
-            if (usdxmToken) {
-                setBalance(usdxmToken.amount);
-            } else {
-                // @ts-ignore
-                setBalance(result.usdc?.amount || "0.00");
-            }
+            const usdVal = usdxmToken ? parseFloat(usdxmToken.amount) : parseFloat(result.usdc?.amount || "0");
+            setUsdBalance(usdVal);
+
+            // PHP Balance (Mocking if not found, or finding PHP token)
+            // @ts-ignore
+            const phpToken = tokens.find((t: any) => t.symbol?.toUpperCase() === "PHP");
+            // For now, let's assume PHP balance is independent. 
+            // If no PHP token exists, we'll keep it at 0 or use a mock value if the user had one.
+            // The user said "USD walled balance and PHP balance is not co related", 
+            // so we should fetch them separately.
+            setPhpBalance(phpToken ? parseFloat(phpToken.amount) : 0);
+
         } catch (err) {
             console.error("Failed to fetch balance:", err);
         }
@@ -83,8 +93,38 @@ export default function HomeScreen() {
         navigation.navigate("Profile");
     };
 
-    const phpBalance = (Number(balance) * 56).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const phpInterest = (12.45 * 56).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const exchangeRate = 56;
+    const totalNetWorthUSD = usdBalance + (phpBalance / exchangeRate);
+    const totalNetWorthPHP = (usdBalance * exchangeRate) + phpBalance;
+
+    const formattedNetWorthUSD = totalNetWorthUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formattedNetWorthPHP = totalNetWorthPHP.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    const [showPHP, setShowPHP] = useState(false);
+    const translateY = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            // Animate out
+            Animated.timing(translateY, {
+                toValue: -20,
+                duration: 400,
+                useNativeDriver: true,
+            }).start(() => {
+                setShowPHP(prev => !prev);
+                // Reset to bottom
+                translateY.setValue(20);
+                // Animate in
+                Animated.timing(translateY, {
+                    toValue: 0,
+                    duration: 400,
+                    useNativeDriver: true,
+                }).start();
+            });
+        }, 4000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -97,23 +137,37 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Cash Balance Card (USD) */}
+                {/* Net Worth Card */}
                 <View style={[styles.cardLarge, { backgroundColor: colors.card, shadowColor: colors.text }]}>
+                    <LinearGradient
+                        colors={theme === 'light'
+                            ? ['rgba(255,255,255,0.8)', 'rgba(255,255,255,0)']
+                            : ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0)']}
+                        style={StyleSheet.absoluteFill}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                    />
                     <TouchableOpacity
                         style={styles.cardHeaderLarge}
                         onPress={() => navigation.navigate("CashDetails")}
                     >
                         <View style={{ flex: 1 }}>
                             <View style={styles.phpTitleRow}>
-                                <Text style={styles.flagEmoji}>🇺🇸</Text>
+                                <View style={[styles.iconCircleSmall, { backgroundColor: colors.primary + '15' }]}>
+                                    <TrendingUp size={20} color={colors.primary} />
+                                </View>
                                 <View>
-                                    <Text style={[styles.cardLabelLarge, { color: colors.text }]}>Cash balance</Text>
-                                    <Text style={[styles.cardSubtitle, { color: colors.subtext }]}>USD</Text>
+                                    <Text style={[styles.cardLabelLarge, { color: colors.text }]}>Net worth</Text>
+                                    <Text style={[styles.cardSubtitle, { color: colors.subtext }]}>Total balance in USD</Text>
                                 </View>
                             </View>
-                            <Text style={[styles.balanceTextLarge, { color: colors.text }]}>
-                                ${Number(balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </Text>
+                            <View style={styles.balanceContainer}>
+                                <Animated.View style={{ transform: [{ translateY }] }}>
+                                    <Text style={[styles.balanceTextLarge, { color: colors.text }]}>
+                                        {showPHP ? `₱${formattedNetWorthPHP}` : `$${formattedNetWorthUSD}`}
+                                    </Text>
+                                </Animated.View>
+                            </View>
                             <View style={styles.interestRow}>
                                 <TrendingUp size={13} color={colors.primary} />
                                 <Text style={[styles.interestEarnedText, { color: colors.primary }]}>Interest earned up to 6.5%</Text>
@@ -122,18 +176,12 @@ export default function HomeScreen() {
                         <ChevronRight size={22} color={colors.subtext} />
                     </TouchableOpacity>
 
-                    {/* Single large Add Money button */}
                     <TouchableOpacity
                         style={[styles.addMoneyBtn, { backgroundColor: colors.text }]}
                         onPress={() => navigation.navigate("Fund")}
                     >
-                        <Plus size={18} color={colors.card} />
-                        <Text style={[styles.addMoneyBtnText, { color: colors.card }]}>Add money</Text>
+                        <Text style={[styles.addMoneyBtnText, { color: colors.card }]}>Invest now</Text>
                     </TouchableOpacity>
-
-                    <View style={styles.expansionIndicatorContainer}>
-                        <View style={[styles.expansionHandle, { backgroundColor: colors.border }]} />
-                    </View>
                 </View>
             </View>
 
@@ -145,36 +193,26 @@ export default function HomeScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
                 }
             >
-                {/* Cash Balance Card (PHP) */}
-                <View style={[styles.cardLarge, { backgroundColor: colors.card, shadowColor: colors.text }]}>
-                    <View style={styles.cardHeaderLarge}>
-                        <View style={{ flex: 1 }}>
-                            <View style={styles.phpTitleRow}>
-                                <Text style={styles.flagEmoji}>🇵🇭</Text>
-                                <View>
-                                    <Text style={[styles.cardLabelLarge, { color: colors.text }]}>Balanseng pera</Text>
-                                    <Text style={[styles.cardSubtitle, { color: colors.subtext }]}>PHP</Text>
-                                </View>
-                            </View>
-                            <Text style={[styles.balanceTextLarge, { color: colors.text }]}>
-                                ₱{phpBalance}
-                            </Text>
-                            <View style={styles.interestRow}>
-                                <TrendingUp size={13} color={colors.primary} />
-                                <Text style={[styles.interestEarnedText, { color: colors.primary }]}>Interest earned up to 6.5%</Text>
-                            </View>
+                {/* Exchange Card */}
+                <TouchableOpacity
+                    style={[styles.exchangeCard, { backgroundColor: colors.card, shadowColor: colors.text }]}
+                    onPress={() => navigation.navigate("Exchange")}
+                >
+                    <View style={styles.exchangeHeader}>
+                        <View style={[styles.exchangeIconBox, { backgroundColor: colors.primary + '15' }]}>
+                            <Zap size={24} color={colors.primary} />
                         </View>
+                        <View style={styles.exchangeInfo}>
+                            <Text style={[styles.exchangeTitle, { color: colors.text }]}>Exchange</Text>
+                            <Text style={[styles.exchangeSubtitle, { color: colors.subtext }]}>USD to PHP · Live rate</Text>
+                        </View>
+                        <View style={styles.ratePreview}>
+                            <View style={styles.liveDot} />
+                            <Text style={[styles.ratePreviewText, { color: colors.primary }]}>59.49</Text>
+                        </View>
+                        <ChevronRight size={20} color={colors.subtext} />
                     </View>
-
-                    {/* Add Money button for PHP */}
-                    <TouchableOpacity
-                        style={[styles.addMoneyBtn, { backgroundColor: colors.text, marginTop: 20 }]}
-                        onPress={() => navigation.navigate("Fund")}
-                    >
-                        <Plus size={18} color={colors.card} />
-                        <Text style={[styles.addMoneyBtnText, { color: colors.card }]}>Add money</Text>
-                    </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
 
                 {/* Monthly Spend Card */}
                 <TouchableOpacity
@@ -276,6 +314,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 20,
         elevation: 6,
+        overflow: 'hidden',
     },
     cardHeaderLarge: {
         flexDirection: 'row',
@@ -285,7 +324,7 @@ const styles = StyleSheet.create({
     },
     cardLabelLarge: {
         fontSize: 15,
-        fontWeight: '600',
+        fontWeight: '700',
         marginBottom: 2,
     },
     cardSubtitle: {
@@ -313,6 +352,11 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '500',
         fontStyle: 'italic',
+    },
+    balanceContainer: {
+        height: 50,
+        overflow: 'hidden',
+        justifyContent: 'center',
     },
 
     // PHP Specific
@@ -344,6 +388,68 @@ const styles = StyleSheet.create({
     },
     addMoneyBtnText: {
         fontSize: 16,
+        fontWeight: '700',
+    },
+
+    iconCircleSmall: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    // Exchange Card
+    exchangeCard: {
+        borderRadius: 24,
+        padding: 20,
+        marginBottom: 20,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.07,
+        shadowRadius: 12,
+        elevation: 3,
+    },
+    exchangeHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    exchangeIconBox: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    exchangeInfo: {
+        flex: 1,
+    },
+    exchangeTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    exchangeSubtitle: {
+        fontSize: 13,
+        marginTop: 2,
+    },
+    ratePreview: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginRight: 8,
+        backgroundColor: 'rgba(5, 185, 89, 0.1)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    liveDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: '#05b959',
+    },
+    ratePreviewText: {
+        fontSize: 12,
         fontWeight: '700',
     },
 

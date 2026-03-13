@@ -116,22 +116,83 @@ export default function CardScreen() {
                             },
                         ]}
                     >
-                        <LinearGradient
-                            colors={theme === "dark"
-                                ? ["#2C2C2C", "#1A1A1A", "#000000"]
-                                : ["#434343", "#282828", "#1A1A1A", "#000000"]}
-                            style={styles.cardGradient}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                        />
-                        {/* Gold Chip Overlay */}
-                        <View style={styles.chipContainer}>
-                            <View style={styles.chip}>
-                                <View style={styles.chipLine} />
-                                <View style={styles.chipLine} />
-                                <View style={styles.chipLine} />
-                                <View style={styles.chipLineVertical} />
+                        <View style={[styles.cardContainer, {
+                            backgroundColor: theme === 'light' ? '#FFFFFF' : '#121212',
+                            borderColor: theme === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)',
+                            borderWidth: 1
+                        }]}>
+                            {/* Top Section */}
+                            <View style={[styles.cardSectionTop, { borderBottomColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
+                                <LinearGradient
+                                    colors={theme === 'light' ? ['#F9F9F9', '#FFFFFF'] : ['#1A1A1A', '#252525']}
+                                    style={StyleSheet.absoluteFill}
+                                />
+                                <View style={[styles.minimalistLogo, { backgroundColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]} />
                             </View>
+
+                            {/* Middle Section: Brushed Metal Band */}
+                            <View style={styles.cardSectionMiddle}>
+                                <LinearGradient
+                                    colors={theme === 'light'
+                                        ? ['#F0F0F0', '#E0E0E0', '#F0F0F0', '#D0D0D0', '#F0F0F0']
+                                        : ['#2A2A2A', '#3A3A3A', '#2A2A2A', '#4A4A4A', '#2A2A2A']}
+                                    style={StyleSheet.absoluteFill}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                />
+                                <View style={styles.chip}>
+                                    <LinearGradient
+                                        colors={['#FFD700', '#E5C100', '#B8860B']}
+                                        style={StyleSheet.absoluteFill}
+                                    />
+                                    <View style={styles.chipInner}>
+                                        <View style={styles.chipLine} />
+                                        <View style={styles.chipLine} />
+                                        <View style={styles.chipLine} />
+                                        <View style={styles.chipLineVertical} />
+                                    </View>
+                                </View>
+                            </View>
+
+                            {/* Bottom Section */}
+                            <View style={[styles.cardSectionBottom, { borderTopColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
+                                <LinearGradient
+                                    colors={theme === 'light' ? ['#FFFFFF', '#F9F9F9'] : ['#252525', '#1A1A1A']}
+                                    style={StyleSheet.absoluteFill}
+                                />
+                                <Text style={[styles.cardHolderName, {
+                                    color: theme === 'light' ? '#333' : '#E0E0E0',
+                                    textShadowColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                    textShadowOffset: { width: 0, height: 1 },
+                                    textShadowRadius: 1
+                                }]}>
+                                    INAAYA CHANDRA
+                                </Text>
+                                <View style={styles.graphicElement}>
+                                    <LinearGradient
+                                        colors={['#EB001B', '#F79E1B']}
+                                        style={[styles.graphicHalf, { opacity: 0.9 }]}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 1 }}
+                                    />
+                                    <LinearGradient
+                                        colors={['#0033A0', '#0072CE']}
+                                        style={[styles.graphicHalf, { opacity: 0.9 }]}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 1 }}
+                                    />
+                                    <View style={styles.graphicOverlay} />
+                                </View>
+                            </View>
+
+                            {/* Premium Shine Overlay */}
+                            <LinearGradient
+                                colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0)']}
+                                style={styles.premiumShine}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                pointerEvents="none"
+                            />
                         </View>
                     </Animated.View>
                 </View>
@@ -168,7 +229,7 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     headerTitle: {
-        fontSize: 32,
+        fontSize: 30,
         fontWeight: '700',
     },
     profileBtn: {
@@ -223,12 +284,20 @@ const styles = StyleSheet.create({
     chip: {
         width: 44,
         height: 34,
-        backgroundColor: '#d4af37',
         borderRadius: 8,
         borderWidth: 1,
         borderColor: 'rgba(0,0,0,0.1)',
+        overflow: 'hidden',
+        justifyContent: 'space-around',
+    },
+    chipInner: {
+        flex: 1,
         padding: 4,
         justifyContent: 'space-around',
+    },
+    premiumShine: {
+        ...StyleSheet.absoluteFillObject,
+        zIndex: 5,
     },
     chipLine: {
         height: 1,
@@ -242,6 +311,60 @@ const styles = StyleSheet.create({
         bottom: 0,
         width: 1,
         backgroundColor: 'rgba(0,0,0,0.2)',
+    },
+    cardSectionTop: {
+        height: '30%',
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+        borderBottomWidth: 0.5,
+        overflow: 'hidden',
+    },
+    cardSectionMiddle: {
+        height: '40%',
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        paddingHorizontal: 24,
+        overflow: 'hidden',
+    },
+    cardSectionBottom: {
+        height: '30%',
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+        borderTopWidth: 0.5,
+        overflow: 'hidden',
+    },
+    minimalistLogo: {
+        width: 24,
+        height: 24,
+        borderRadius: 4,
+    },
+    cardHolderName: {
+        fontSize: 14,
+        fontWeight: '600',
+        letterSpacing: 2,
+    },
+    graphicElement: {
+        width: 60,
+        height: 30,
+        flexDirection: 'row',
+        borderRadius: 4,
+        overflow: 'hidden',
+        position: 'relative',
+    },
+    graphicHalf: {
+        flex: 1,
+    },
+    graphicOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
     },
     ctaContainer: {
         marginTop: 8,

@@ -41,15 +41,33 @@ export default function ExploreScreen() {
 
             {/* Full Page Card Visual - Centered and Clean */}
             <View style={styles.cardWrapper}>
-                <View style={styles.cardContainer}>
-                    <Image
-                        source={require("../assets/marble_texture.png")}
-                        style={styles.cardImage}
-                        resizeMode="cover"
-                    />
-                    {/* High-Quality Gold Chip Overlay */}
-                    <View style={styles.chipContainer}>
+                <View style={[styles.cardContainer, {
+                    backgroundColor: theme === 'light' ? '#FFFFFF' : '#121212',
+                    borderColor: theme === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)',
+                    borderWidth: 1
+                }]}>
+                    {/* Top Section */}
+                    <View style={[styles.cardSectionTop, { height: '30%', borderBottomWidth: 0.5, borderBottomColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
+                        <LinearGradient
+                            colors={theme === 'light' ? ['#F9F9F9', '#FFFFFF'] : ['#1A1A1A', '#252525']}
+                            style={StyleSheet.absoluteFill}
+                        />
+                    </View>
+                    {/* Middle Section: Brushed Metal Band */}
+                    <View style={[styles.cardSectionMiddle, { height: '40%' }]}>
+                        <LinearGradient
+                            colors={theme === 'light'
+                                ? ['#F0F0F0', '#E0E0E0', '#F0F0F0', '#D0D0D0', '#F0F0F0']
+                                : ['#2A2A2A', '#3A3A3A', '#2A2A2A', '#4A4A4A', '#2A2A2A']}
+                            style={StyleSheet.absoluteFill}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                        />
                         <View style={styles.chip}>
+                            <LinearGradient
+                                colors={['#FFD700', '#E5C100', '#B8860B']}
+                                style={styles.chipInnerGradient}
+                            />
                             <View style={styles.chipInner}>
                                 <View style={styles.chipLine} />
                                 <View style={styles.chipLine} />
@@ -58,7 +76,21 @@ export default function ExploreScreen() {
                             </View>
                         </View>
                     </View>
-                    <View style={styles.cardShine} />
+                    {/* Bottom Section */}
+                    <View style={[styles.cardSectionBottom, { height: '30%', borderTopWidth: 0.5, borderTopColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
+                        <LinearGradient
+                            colors={theme === 'light' ? ['#FFFFFF', '#F9F9F9'] : ['#252525', '#1A1A1A']}
+                            style={StyleSheet.absoluteFill}
+                        />
+                    </View>
+                    {/* Premium Shine Overlay */}
+                    <LinearGradient
+                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0)']}
+                        style={styles.premiumShine}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        pointerEvents="none"
+                    />
                 </View>
             </View>
 
@@ -83,14 +115,33 @@ export default function ExploreScreen() {
             </View>
 
             <View style={styles.verticalCardWrapper}>
-                <View style={styles.verticalCard}>
-                    <Image
-                        source={require("../assets/marble_texture.png")}
-                        style={styles.cardImage}
-                        resizeMode="cover"
-                    />
-                    <View style={styles.verticalChipContainer}>
+                <View style={[styles.verticalCard, {
+                    backgroundColor: theme === 'light' ? '#FFFFFF' : '#121212',
+                    borderColor: theme === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)',
+                    borderWidth: 1
+                }]}>
+                    {/* Top Section */}
+                    <View style={[styles.cardSectionTop, { height: '30%', borderBottomWidth: 0.5, borderBottomColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
+                        <LinearGradient
+                            colors={theme === 'light' ? ['#F9F9F9', '#FFFFFF'] : ['#1A1A1A', '#252525']}
+                            style={StyleSheet.absoluteFill}
+                        />
+                    </View>
+                    {/* Middle Section: Brushed Metal Band */}
+                    <View style={[styles.cardSectionMiddle, { height: '40%' }]}>
+                        <LinearGradient
+                            colors={theme === 'light'
+                                ? ['#F0F0F0', '#E0E0E0', '#F0F0F0', '#D0D0D0', '#F0F0F0']
+                                : ['#2A2A2A', '#3A3A3A', '#2A2A2A', '#4A4A4A', '#2A2A2A']}
+                            style={StyleSheet.absoluteFill}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                        />
                         <View style={styles.chip}>
+                            <LinearGradient
+                                colors={['#FFD700', '#E5C100', '#B8860B']}
+                                style={styles.chipInnerGradient}
+                            />
                             <View style={styles.chipInner}>
                                 <View style={styles.chipLine} />
                                 <View style={styles.chipLine} />
@@ -99,9 +150,29 @@ export default function ExploreScreen() {
                             </View>
                         </View>
                     </View>
-                    <View style={styles.engravedNameContainer}>
-                        <Text style={styles.engravedName}>{cardName || "YOUR NAME"}</Text>
+                    {/* Bottom Section */}
+                    <View style={[styles.cardSectionBottom, { height: '30%', borderTopWidth: 0.5, borderTopColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
+                        <LinearGradient
+                            colors={theme === 'light' ? ['#FFFFFF', '#F9F9F9'] : ['#252525', '#1A1A1A']}
+                            style={StyleSheet.absoluteFill}
+                        />
+                        <Text style={[styles.engravedName, {
+                            color: theme === 'light' ? '#333' : '#E0E0E0',
+                            textShadowColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                            textShadowOffset: { width: 0, height: 1 },
+                            textShadowRadius: 1
+                        }]}>
+                            {cardName.toUpperCase() || "YOUR NAME"}
+                        </Text>
                     </View>
+                    {/* Premium Shine Overlay */}
+                    <LinearGradient
+                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0)']}
+                        style={styles.premiumShine}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        pointerEvents="none"
+                    />
                 </View>
             </View>
 
@@ -166,7 +237,7 @@ export default function ExploreScreen() {
                     top: 80,
                     zIndex: 2,
                     backgroundColor: theme === 'light' ? '#FFFFFF' : '#121212',
-                    borderColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)'
+                    borderColor: theme === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)'
                 }]}>
                     {/* Top Section: Clean Minimalist Matte */}
                     <View style={[styles.cardSectionTop, { borderBottomColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
@@ -182,12 +253,18 @@ export default function ExploreScreen() {
                     {/* Middle Section: Brushed Metal Band */}
                     <View style={styles.cardSectionMiddle}>
                         <LinearGradient
-                            colors={theme === 'light' ? ['#F0F0F0', '#E5E5E5', '#F0F0F0'] : ['#2A2A2A', '#353535', '#2A2A2A']}
+                            colors={theme === 'light'
+                                ? ['#F0F0F0', '#E0E0E0', '#F0F0F0', '#D0D0D0', '#F0F0F0']
+                                : ['#2A2A2A', '#3A3A3A', '#2A2A2A', '#4A4A4A', '#2A2A2A']}
                             style={StyleSheet.absoluteFill}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                         />
                         <View style={styles.chip}>
+                            <LinearGradient
+                                colors={['#FFD700', '#E5C100', '#B8860B']}
+                                style={styles.chipInnerGradient}
+                            />
                             <View style={styles.chipInner}>
                                 <View style={styles.chipLine} />
                                 <View style={styles.chipLine} />
@@ -205,13 +282,39 @@ export default function ExploreScreen() {
                             start={{ x: 0, y: 0 }}
                             end={{ x: 0, y: 1 }}
                         />
-                        <Text style={[styles.cardHolderNameNew, { color: theme === 'light' ? '#333' : '#E0E0E0' }]}>{cardName.toUpperCase() || "INAAYA CHANDRA"}</Text>
+                        <Text style={[styles.cardHolderNameNew, {
+                            color: theme === 'light' ? '#333' : '#E0E0E0',
+                            textShadowColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                            textShadowOffset: { width: 0, height: 1 },
+                            textShadowRadius: 1
+                        }]}>
+                            {cardName.toUpperCase() || "INAAYA CHANDRA"}
+                        </Text>
                         <View style={styles.graphicElement}>
-                            <View style={[styles.graphicHalf, { backgroundColor: '#EB001B' }]} />
-                            <View style={[styles.graphicHalf, { backgroundColor: '#0033A0' }]} />
+                            <LinearGradient
+                                colors={['#EB001B', '#F79E1B']}
+                                style={[styles.graphicHalf, { opacity: 0.9 }]}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                            />
+                            <LinearGradient
+                                colors={['#0033A0', '#0072CE']}
+                                style={[styles.graphicHalf, { opacity: 0.9 }]}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                            />
                             <View style={styles.graphicOverlay} />
                         </View>
                     </View>
+
+                    {/* Premium Shine Overlay */}
+                    <LinearGradient
+                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0)']}
+                        style={styles.premiumShine}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        pointerEvents="none"
+                    />
                 </View>
             </View>
 
@@ -260,17 +363,13 @@ export default function ExploreScreen() {
                 </View>
 
                 {[
-                    { id: 1, name: "Adobe Creative suite", type: "Subscription", amount: "-$242", time: "Today, 12:03 PM", icon: "A" },
-                    { id: 2, name: "Wise - from Zack", type: "Transfer", amount: "+$2,499", time: "Yesterday", icon: "W" },
-                    { id: 3, name: "Apple", type: "Online payment", amount: "-$6,733", time: "Today, 12:03 PM", icon: Apple },
+                    { id: 1, name: "Adobe Creative suite", type: "Subscription", amount: "-$242", time: "Today, 12:03 PM", icon: require("../assets/adobe.png") },
+                    { id: 2, name: "Wise - from Zack", type: "Transfer", amount: "+$2,499", time: "Yesterday", icon: require("../assets/wise.png") },
+                    { id: 3, name: "Apple", type: "Online payment", amount: "-$6,733", time: "Today, 12:03 PM", icon: require("../assets/apple.png") },
                 ].map((tx) => (
                     <View key={tx.id} style={[styles.transactionItem, { backgroundColor: theme === 'light' ? '#f9f9f9' : '#111' }]}>
                         <View style={[styles.txIconWrapper, { backgroundColor: theme === 'light' ? '#f0f0f0' : '#1A1A1A' }]}>
-                            {typeof tx.icon === 'string' ? (
-                                <Text style={[styles.txIconText, { color: colors.text }]}>{tx.icon}</Text>
-                            ) : (
-                                <tx.icon size={20} color={colors.text} />
-                            )}
+                            <Image source={tx.icon} style={styles.txIconImage} />
                         </View>
                         <View style={styles.txInfo}>
                             <Text style={[styles.txName, { color: colors.text }]}>{tx.name}</Text>
@@ -370,11 +469,19 @@ const styles = StyleSheet.create({
     chip: {
         width: 54,
         height: 42,
-        backgroundColor: '#e5c100',
         borderRadius: 8,
         padding: 2,
         borderWidth: 1,
         borderColor: 'rgba(0,0,0,0.1)',
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    chipInnerGradient: {
+        ...StyleSheet.absoluteFillObject,
     },
     chipInner: {
         flex: 1,
@@ -402,6 +509,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.05)',
         transform: [{ skewX: '-20deg' }, { translateX: -width }],
     },
+    premiumShine: {
+        ...StyleSheet.absoluteFillObject,
+        zIndex: 10,
+    },
     arrowButton: {
         alignSelf: 'flex-end',
         width: 64,
@@ -418,7 +529,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     namingTitle: {
-        fontSize: 32,
+        fontSize: 30,
         fontWeight: '700',
         color: '#fff',
         marginBottom: 8,
@@ -498,7 +609,7 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     settledTitle: {
-        fontSize: 32,
+        fontSize: 30,
         fontWeight: '700',
         color: '#fff',
         textAlign: 'left',
@@ -701,10 +812,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    txIconText: {
-        fontSize: 20,
-        color: '#fff',
-        fontWeight: '700',
+    txIconImage: {
+        width: 28,
+        height: 28,
+        resizeMode: 'contain',
     },
     txInfo: {
         flex: 1,
