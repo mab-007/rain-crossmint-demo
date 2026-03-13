@@ -11,7 +11,7 @@ import {
     Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { ChevronLeft, ChevronRight, Plus, ArrowDownLeft } from "lucide-react-native";
+import { ChevronLeft, ChevronRight, Plus, ArrowDownLeft, Wallet } from "lucide-react-native";
 import { useTheme } from "../context/ThemeContext";
 
 const { height } = Dimensions.get("window");
@@ -93,6 +93,22 @@ export default function CashDetailsScreen() {
                 >
                     <Text style={[styles.viewAllText, { color: colors.primary }]}>View all transactions</Text>
                     <ChevronRight size={16} color={colors.primary} />
+                </TouchableOpacity>
+                {/* Currency Management */}
+                <TouchableOpacity
+                    style={[styles.currencyCard, { backgroundColor: colors.card, shadowColor: colors.text }]}
+                    onPress={() => navigation.navigate("Balances" as never)}
+                >
+                    <View style={styles.currencyHeader}>
+                        <View style={[styles.currencyIconBox, { backgroundColor: theme === "dark" ? "rgba(5, 185, 89, 0.1)" : "#f0fdf4" }]}>
+                            <Wallet size={24} color={colors.primary} />
+                        </View>
+                        <View style={styles.currencyInfo}>
+                            <Text style={[styles.currencyTitle, { color: colors.text }]}>Currency management</Text>
+                            <Text style={[styles.currencySubtitle, { color: colors.subtext }]}>Manage your USD, USDC, and more</Text>
+                        </View>
+                        <ChevronRight size={20} color={colors.subtext} />
+                    </View>
                 </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>
@@ -235,5 +251,39 @@ const styles = StyleSheet.create({
     viewAllText: {
         fontSize: 14,
         fontWeight: "600",
+    },
+    // Currency Card
+    currencyCard: {
+        borderRadius: 24,
+        padding: 20,
+        marginTop: 8,
+        marginBottom: 24,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 2,
+    },
+    currencyHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    currencyIconBox: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    currencyInfo: {
+        flex: 1,
+    },
+    currencyTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    currencySubtitle: {
+        fontSize: 13,
+        marginTop: 2,
     },
 });

@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useCrossmintAuth } from "@crossmint/client-sdk-react-native-ui";
-import { ActivityIndicator, View, StyleSheet } from "react-native";
+import { ActivityIndicator, View, StyleSheet, Text as RNText } from "react-native";
 import { Home, DollarSign, CreditCard, History, PlusCircle, Send } from "lucide-react-native";
 import { BlurView } from "expo-blur";
 import { StatusBar } from "expo-status-bar";
@@ -22,6 +22,7 @@ import InsightsScreen from "../screens/InsightsScreen";
 import CashDetailsScreen from "../screens/CashDetailsScreen";
 import LandingScreen from "../screens/LandingScreen";
 import ExploreScreen from "../screens/ExploreScreen";
+import CardSettingsScreen from "../screens/CardSettingsScreen";
 
 export type RootStackParamList = {
     Landing: undefined;
@@ -35,6 +36,7 @@ export type RootStackParamList = {
     Insights: undefined;
     CashDetails: undefined;
     Explore: undefined;
+    CardSettings: undefined;
 };
 
 export type MainTabParamList = {
@@ -81,7 +83,19 @@ function MainTabs() {
                     if (route.name === "Account") {
                         return <Home size={size} color={color} />;
                     } else if (route.name === "Transfer") {
-                        return <DollarSign size={size} color={color} />;
+                        return (
+                            <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
+                                <RNText style={{
+                                    color,
+                                    fontSize: size + 4,
+                                    fontWeight: '800',
+                                    fontStyle: 'italic',
+                                    marginTop: -2
+                                }}>
+                                    $
+                                </RNText>
+                            </View>
+                        );
                     } else if (route.name === "Card") {
                         return <CreditCard size={size} color={color} />;
                     }
@@ -177,6 +191,11 @@ export default function AppNavigator() {
                         <Stack.Screen
                             name="Explore"
                             component={ExploreScreen}
+                            options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                            name="CardSettings"
+                            component={CardSettingsScreen}
                             options={{ headerShown: false }}
                         />
                     </>

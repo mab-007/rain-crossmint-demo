@@ -22,6 +22,7 @@ import {
     Wallet,
     TrendingUp,
     Plus,
+    Zap,
 } from "lucide-react-native";
 import { useTheme } from "../context/ThemeContext";
 
@@ -82,6 +83,9 @@ export default function HomeScreen() {
         navigation.navigate("Profile");
     };
 
+    const phpBalance = (Number(balance) * 56).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const phpInterest = (12.45 * 56).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             {/* Fixed Top Section */}
@@ -93,17 +97,19 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {/* Cash Balance Card */}
+                {/* Cash Balance Card (USD) */}
                 <View style={[styles.cardLarge, { backgroundColor: colors.card, shadowColor: colors.text }]}>
                     <TouchableOpacity
                         style={styles.cardHeaderLarge}
                         onPress={() => navigation.navigate("CashDetails")}
                     >
                         <View style={{ flex: 1 }}>
-                            <Text style={[styles.cardLabelLarge, { color: colors.text }]}>Cash balance</Text>
+                            <View style={styles.titleRow}>
+                                <Text style={[styles.cardLabelLarge, { color: colors.text }]}>Cash balance 🇺🇸</Text>
+                            </View>
+                            <Text style={[styles.cardSubtitle, { color: colors.subtext }]}>USD</Text>
                             <Text style={[styles.balanceTextLarge, { color: colors.text }]}>
-                                ${Number(balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
-                                <Text style={[styles.currencyTextLarge, { color: colors.subtext }]}>USD</Text>
+                                ${Number(balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </Text>
                             <View style={styles.interestRow}>
                                 <TrendingUp size={13} color={colors.primary} />
@@ -136,6 +142,37 @@ export default function HomeScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
                 }
             >
+                {/* Cash Balance Card (PHP) */}
+                <View style={[styles.cardLarge, { backgroundColor: colors.card, shadowColor: colors.text }]}>
+                    <View style={styles.cardHeaderLarge}>
+                        <View style={{ flex: 1 }}>
+                            <View style={styles.phpTitleRow}>
+                                <Text style={styles.flagEmoji}>🇵🇭</Text>
+                                <View>
+                                    <Text style={[styles.cardLabelLarge, { color: colors.text }]}>Balanseng pera</Text>
+                                    <Text style={[styles.cardSubtitle, { color: colors.subtext }]}>PHP</Text>
+                                </View>
+                            </View>
+                            <Text style={[styles.balanceTextLarge, { color: colors.text }]}>
+                                ₱{phpBalance}
+                            </Text>
+                            <View style={styles.interestRow}>
+                                <TrendingUp size={13} color={colors.primary} />
+                                <Text style={[styles.interestEarnedText, { color: colors.primary }]}>Interest earned ₱{phpInterest}</Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* Add Money button for PHP */}
+                    <TouchableOpacity
+                        style={[styles.addMoneyBtn, { backgroundColor: colors.text, marginTop: 20 }]}
+                        onPress={() => navigation.navigate("Fund")}
+                    >
+                        <Plus size={18} color={colors.card} />
+                        <Text style={[styles.addMoneyBtnText, { color: colors.card }]}>Add money</Text>
+                    </TouchableOpacity>
+                </View>
+
                 {/* Monthly Spend Card */}
                 <TouchableOpacity
                     style={[styles.spendCard, { backgroundColor: colors.card, shadowColor: colors.text }]}
@@ -176,23 +213,6 @@ export default function HomeScreen() {
                     </View>
                 </TouchableOpacity>
 
-                {/* Currency Management */}
-                <TouchableOpacity
-                    style={[styles.currencyCard, { backgroundColor: colors.card, shadowColor: colors.text }]}
-                    onPress={() => navigation.navigate("Balances")}
-                >
-                    <View style={styles.currencyHeader}>
-                        <View style={[styles.currencyIconBox, { backgroundColor: theme === "dark" ? "rgba(5, 185, 89, 0.1)" : "#f0fdf4" }]}>
-                            <Wallet size={24} color={colors.primary} />
-                        </View>
-                        <View style={styles.currencyInfo}>
-                            <Text style={[styles.currencyTitle, { color: colors.text }]}>Currency management</Text>
-                            <Text style={[styles.currencySubtitle, { color: colors.subtext }]}>Manage your USD, USDC, and more</Text>
-                        </View>
-                        <ChevronRight size={20} color={colors.subtext} />
-                    </View>
-                </TouchableOpacity>
-
                 {/* Wallet Debug Info */}
                 {wallet && (
                     <View style={styles.debugInfo}>
@@ -223,12 +243,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 24,
         marginTop: 8,
     },
     headerTitle: {
         fontSize: 32,
-        fontWeight: '800',
+        fontWeight: '700',
     },
     profileBtn: {
         width: 44,
@@ -263,10 +283,15 @@ const styles = StyleSheet.create({
     cardLabelLarge: {
         fontSize: 15,
         fontWeight: '600',
-        marginBottom: 6,
+        marginBottom: 2,
+    },
+    cardSubtitle: {
+        fontSize: 13,
+        fontWeight: '500',
+        marginBottom: 12,
     },
     balanceTextLarge: {
-        fontSize: 40,  // Smaller than before (was 48)
+        fontSize: 40,
         fontWeight: '800',
         marginBottom: 2,
         letterSpacing: -1,
@@ -284,7 +309,24 @@ const styles = StyleSheet.create({
     interestEarnedText: {
         fontSize: 13,
         fontWeight: '500',
-        fontStyle: 'italic',  // italic as requested
+        fontStyle: 'italic',
+    },
+
+    // PHP Specific
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    phpTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 2,
+    },
+    flagEmoji: {
+        fontSize: 28,
+        marginTop: -4,
     },
 
     // Single Add Money button
@@ -418,40 +460,6 @@ const styles = StyleSheet.create({
     viewAllText: {
         fontSize: 14,
         fontWeight: '600',
-    },
-
-    // Currency Card
-    currencyCard: {
-        borderRadius: 24,
-        padding: 20,
-        marginBottom: 24,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2,
-    },
-    currencyHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    currencyIconBox: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 16,
-    },
-    currencyInfo: {
-        flex: 1,
-    },
-    currencyTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-    },
-    currencySubtitle: {
-        fontSize: 13,
-        marginTop: 2,
     },
 
     debugInfo: {

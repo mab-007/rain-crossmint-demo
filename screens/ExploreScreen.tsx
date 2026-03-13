@@ -14,15 +14,17 @@ import {
     Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/AppNavigator";
 import { useTheme } from "../context/ThemeContext";
-import { ArrowRight, X, Send, ArrowDownLeft, PieChart, Grid, Check } from "lucide-react-native";
+import { ArrowRight, X, Send, ArrowDownLeft, PieChart, Grid, Check, ChevronLeft, Settings } from "lucide-react-native";
 
 const { width, height } = Dimensions.get("window");
 
 type Step = "hero" | "naming" | "settled";
 
 export default function ExploreScreen() {
-    const navigation = useNavigation();
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { theme, colors } = useTheme();
     const [step, setStep] = useState<Step>("hero");
     const [cardName, setCardName] = useState("");
@@ -117,7 +119,7 @@ export default function ExploreScreen() {
                     onPress={() => setStep("settled")}
                     disabled={!cardName}
                 >
-                    <Check size={24} color="#fff" />
+                    <ArrowRight size={24} color="#fff" />
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
@@ -126,14 +128,13 @@ export default function ExploreScreen() {
     const renderSettled = () => (
         <ScrollView style={styles.settledContainer} showsVerticalScrollIndicator={false}>
             <View style={styles.settledHeader}>
-                <View>
-                    <Text style={styles.welcomeText}>Welcome back</Text>
-                    <Text style={styles.userName}>{cardName} 👋</Text>
-                </View>
-                <TouchableOpacity style={styles.notificationBtn}>
-                    <View style={styles.notificationDot} />
-                    <X size={20} color="#fff" style={{ transform: [{ rotate: '45deg' }] }} />
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => navigation.goBack()}
+                >
+                    <ChevronLeft size={28} color="#fff" />
                 </TouchableOpacity>
+                <Text style={styles.settledTitle}>Card Management</Text>
             </View>
 
             <View style={styles.dashboardCardWrapper}>
@@ -164,7 +165,10 @@ export default function ExploreScreen() {
             </View>
 
             <View style={styles.actionGrid}>
-                <TouchableOpacity style={styles.actionItem}>
+                <TouchableOpacity
+                    style={styles.actionItem}
+                    onPress={() => navigation.navigate('Transfer')}
+                >
                     <View style={styles.actionIconWrapper}>
                         <Send size={24} color="#05b959" />
                     </View>
@@ -176,17 +180,23 @@ export default function ExploreScreen() {
                     </View>
                     <Text style={styles.actionLabel}>Request</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionItem}>
+                <TouchableOpacity
+                    style={styles.actionItem}
+                    onPress={() => navigation.navigate('Insights')}
+                >
                     <View style={styles.actionIconWrapper}>
                         <PieChart size={24} color="#05b959" />
                     </View>
                     <Text style={styles.actionLabel}>Statistic</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionItem}>
+                <TouchableOpacity
+                    style={styles.actionItem}
+                    onPress={() => navigation.navigate('CardSettings')}
+                >
                     <View style={styles.actionIconWrapper}>
-                        <Grid size={24} color="#05b959" />
+                        <Settings size={24} color="#05b959" />
                     </View>
-                    <Text style={styles.actionLabel}>Menu</Text>
+                    <Text style={styles.actionLabel}>Settings</Text>
                 </TouchableOpacity>
             </View>
 
@@ -225,13 +235,15 @@ export default function ExploreScreen() {
         <View style={[styles.container, { backgroundColor: "#000" }]}>
             <StatusBar barStyle="light-content" />
 
-            {/* Close Button */}
-            <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => navigation.goBack()}
-            >
-                <X size={28} color="#fff" />
-            </TouchableOpacity>
+            {/* Close Button - Only for naming flow */}
+            {step !== "settled" && (
+                <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => navigation.goBack()}
+                >
+                    <X size={28} color="#fff" />
+                </TouchableOpacity>
+            )}
 
             <SafeAreaView style={styles.safeArea}>
                 {step === "hero" && renderHero()}
@@ -425,39 +437,19 @@ const styles = StyleSheet.create({
     },
     settledHeader: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 20,
-        marginBottom: 30,
+        marginTop: 8,
+        marginBottom: 24,
+        gap: 12,
     },
-    welcomeText: {
-        fontSize: 16,
-        color: 'rgba(255,255,255,0.5)',
-    },
-    userName: {
-        fontSize: 24,
+    settledTitle: {
+        fontSize: 32,
         fontWeight: '700',
         color: '#fff',
+        textAlign: 'left',
     },
-    notificationBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-    },
-    notificationDot: {
-        position: 'absolute',
-        top: 12,
-        right: 12,
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: '#05b959',
-        zIndex: 1,
+    backButton: {
+        marginLeft: -8,
     },
     dashboardCardWrapper: {
         marginBottom: 30,

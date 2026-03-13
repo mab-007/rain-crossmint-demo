@@ -13,7 +13,7 @@ const lightColors = {
     card: "#ffffff",
     text: "#000000",
     subtext: "#666666",
-    primary: "#05b959",
+    primary: "#59d102",
     border: "#f0f0f0",
     iconBg: "#f0fdf4",
     danger: "#ff3b30",

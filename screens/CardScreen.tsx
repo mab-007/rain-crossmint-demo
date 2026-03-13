@@ -96,7 +96,7 @@ export default function CardScreen() {
 
                 {/* Main Title */}
                 <View style={styles.titleContainer}>
-                    <Text style={[styles.mainTitle, { color: colors.text }]}>Design a card{"\n"}unlike{"\n"}any other</Text>
+                    <Text style={[styles.mainTitle, { color: colors.text }]}>Design a card unlike any other</Text>
                 </View>
 
                 {/* Focused Vertical Card with Animation */}
@@ -142,10 +142,6 @@ export default function CardScreen() {
                         <Text style={styles.ctaText}>Explore</Text>
                     </TouchableOpacity>
                 </View>
-
-                <Text style={[styles.footerText, { color: colors.subtext }]}>
-                    Prepaid debit cards issued by Sutton Bank, Member FDIC.
-                </Text>
             </View>
         </SafeAreaView>
     );
@@ -164,12 +160,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 4,
-        marginBottom: 8,
+        marginTop: 8,
+        marginBottom: 24,
     },
     headerTitle: {
-        fontSize: 28,
-        fontWeight: '800',
+        fontSize: 32,
+        fontWeight: '700',
     },
     profileBtn: {
         width: 40,
@@ -184,8 +180,8 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
     },
     titleContainer: {
-        marginTop: 2,
-        marginBottom: 8,
+        marginTop: 20,
+        marginBottom: 0,
     },
     mainTitle: {
         fontSize: 32,
@@ -264,10 +260,5 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: '600',
-    },
-    footerText: {
-        fontSize: 10,
-        textAlign: "center",
-        paddingBottom: 0,
     },
 });
