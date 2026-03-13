@@ -9,12 +9,12 @@ interface ThemeContextType {
 }
 
 const lightColors = {
-    background: "#f6f6f6",
+    background: "#ffffff",
     card: "#ffffff",
     text: "#000000",
     subtext: "#666666",
     primary: "#59d102",
-    border: "#f0f0f0",
+    border: "#e8e8e8",
     iconBg: "#f0fdf4",
     danger: "#ff3b30",
 };

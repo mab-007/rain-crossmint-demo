@@ -87,8 +87,7 @@ export default function BalancesScreen() {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.backBtn, { backgroundColor: colors.card }]}>
                     <ChevronLeft size={24} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.text }]}>Balances</Text>
-                <View style={{ width: 40 }} />
+                <Text style={[styles.headerTitle, { color: colors.text }]}>Cash Details</Text>
             </View>
 
             <ScrollView
@@ -166,14 +165,13 @@ const styles = StyleSheet.create({
 
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: '#f6f6f6',
+        gap: 12,
     },
     headerTitle: { fontSize: 20, fontWeight: '700', color: '#000' },
-    backBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
+    backBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
 
     scroll: { padding: 20, paddingBottom: 60 },
 

@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { useWallet, useCrossmintAuth } from "@crossmint/client-sdk-react-native-ui";
 import { useNavigation } from "@react-navigation/native";
-import { Delete, X } from "lucide-react-native";
+import { Delete, X, Pencil } from "lucide-react-native";
 import { useTheme } from "../context/ThemeContext";
 
 export default function TransferScreen() {
@@ -24,7 +24,16 @@ export default function TransferScreen() {
     const [amount, setAmount] = useState("0");
     const [recipient, setRecipient] = useState("");
     const [loading, setLoading] = useState(false);
-    const [showRecipient, setShowRecipient] = useState(false);
+    const [step, setStep] = useState<"amount" | "recipient" | "confirm">("amount");
+
+    const truncateAddress = (addr: string) => {
+        if (!addr) return "";
+        if (addr.includes("@")) return addr;
+        if (addr.startsWith("0x") && addr.length > 12) {
+            return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+        }
+        return addr;
+    };
 
     const handleNumberPress = (num: string) => {
         if (amount === "0" && num !== ".") {
@@ -45,21 +54,26 @@ export default function TransferScreen() {
     };
 
     const handlePay = async () => {
-        if (!showRecipient) {
-            setShowRecipient(true);
+        if (step === "amount") {
+            if (parseFloat(amount) <= 0) {
+                Alert.alert("Invalid Amount", "Please enter an amount greater than 0.");
+                return;
+            }
+            setStep("recipient");
+            return;
+        }
+
+        if (step === "recipient") {
+            if (!recipient.trim()) {
+                Alert.alert("Error", "Please enter a recipient.");
+                return;
+            }
+            setStep("confirm");
             return;
         }
 
         if (!wallet) {
             Alert.alert("Error", "Wallet not loaded yet.");
-            return;
-        }
-        if (!recipient.trim().startsWith("0x")) {
-            Alert.alert("Invalid Address", "Please enter a valid 0x Ethereum address.");
-            return;
-        }
-        if (parseFloat(amount) <= 0) {
-            Alert.alert("Invalid Amount", "Please enter an amount greater than 0.");
             return;
         }
 
@@ -72,7 +86,7 @@ export default function TransferScreen() {
             ]);
             setAmount("0");
             setRecipient("");
-            setShowRecipient(false);
+            setStep("amount");
         } catch (err: any) {
             Alert.alert("Transfer Failed", err?.message ?? "An error occurred.");
         } finally {
@@ -111,64 +125,102 @@ export default function TransferScreen() {
                     <View style={styles.amountContainer}>
                         <Text style={styles.amountText}>${amount}</Text>
 
-                        {/* Amount Suggestions */}
-                        <View style={styles.suggestionRow}>
-                            {['1', '10', '100'].map((val) => (
-                                <TouchableOpacity
-                                    key={val}
-                                    style={[styles.suggestionBadge, { backgroundColor: 'rgba(0,0,0,0.05)' }]}
-                                    onPress={() => setAmount(val)}
-                                >
-                                    <Text style={styles.suggestionText}>${val}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
+                        {step === "amount" && (
+                            <View style={styles.suggestionRow}>
+                                {['1', '10', '100'].map((val) => (
+                                    <TouchableOpacity
+                                        key={val}
+                                        style={[styles.suggestionBadge, { backgroundColor: 'rgba(0,0,0,0.05)' }]}
+                                        onPress={() => setAmount(val)}
+                                    >
+                                        <Text style={styles.suggestionText}>${val}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+
+                        {step === "confirm" && (
+                            <View style={styles.confirmInfo}>
+                                <View style={styles.confirmRecipientRow}>
+                                    <Text style={styles.confirmTo}>To: {truncateAddress(recipient)}</Text>
+                                    <TouchableOpacity
+                                        onPress={() => setStep("recipient")}
+                                        style={styles.editIconBtn}
+                                    >
+                                        <Pencil size={16} color="#000000" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )}
                     </View>
 
-                    {/* Recipient Input (Overlay/Conditional) */}
-                    {showRecipient && (
-                        <View style={[styles.recipientContainer, { backgroundColor: colors.card }]}>
-                            <View style={styles.recipientHeader}>
-                                <Text style={styles.recipientTitle}>To:</Text>
-                                <TouchableOpacity onPress={() => setShowRecipient(false)}>
-                                    <X size={20} color={colors.text} />
+                    {/* Recipient Input (Step 2) */}
+                    {step === "recipient" && (
+                        <View style={styles.recipientStepContainer}>
+                            <View style={styles.recipientInputRow}>
+                                <Text style={styles.recipientLabel}>To:</Text>
+                                <TextInput
+                                    style={[styles.recipientInputMinimal, { color: colors.text }]}
+                                    placeholder="0x... or email"
+                                    placeholderTextColor="rgba(0,0,0,0.3)"
+                                    value={recipient}
+                                    onChangeText={setRecipient}
+                                    autoFocus
+                                    autoCapitalize="none"
+                                />
+                                <TouchableOpacity onPress={() => setStep("amount")} style={styles.closeBtn}>
+                                    <X size={20} color="#000000" />
                                 </TouchableOpacity>
                             </View>
-                            <TextInput
-                                style={[styles.recipientInput, { color: colors.text, borderBottomColor: colors.border }]}
-                                placeholder="0x... or email"
-                                placeholderTextColor={colors.subtext}
-                                value={recipient}
-                                onChangeText={setRecipient}
-                                autoFocus
-                                autoCapitalize="none"
-                            />
+
+                            {/* Dummy Suggestions */}
+                            <View style={styles.suggestionsContainer}>
+                                <Text style={styles.suggestionsTitle}>Suggestions</Text>
+                                {['Alice (0x1234...abcd)', 'Bob (bob@example.com)', 'Charlie (0x9876...fedc)'].map((item, index) => (
+                                    <TouchableOpacity
+                                        key={index}
+                                        style={styles.suggestionItem}
+                                        onPress={() => {
+                                            const val = item.includes('(') ? item.split('(')[1].replace(')', '') : item;
+                                            setRecipient(val);
+                                            setStep("confirm");
+                                        }}
+                                    >
+                                        <View style={styles.suggestionAvatar}>
+                                            <Text style={styles.avatarText}>{item[0]}</Text>
+                                        </View>
+                                        <Text style={styles.suggestionItemText}>{item}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
                         </View>
                     )}
 
-                    {/* Numpad */}
-                    <View style={styles.numpad}>
-                        <View style={styles.numpadRow}>
-                            <NumpadButton value="1" label="1" />
-                            <NumpadButton value="2" label="2" />
-                            <NumpadButton value="3" label="3" />
+                    {/* Numpad (Only in Amount step) */}
+                    {step === "amount" && (
+                        <View style={styles.numpad}>
+                            <View style={styles.numpadRow}>
+                                <NumpadButton value="1" label="1" />
+                                <NumpadButton value="2" label="2" />
+                                <NumpadButton value="3" label="3" />
+                            </View>
+                            <View style={styles.numpadRow}>
+                                <NumpadButton value="4" label="4" />
+                                <NumpadButton value="5" label="5" />
+                                <NumpadButton value="6" label="6" />
+                            </View>
+                            <View style={styles.numpadRow}>
+                                <NumpadButton value="7" label="7" />
+                                <NumpadButton value="8" label="8" />
+                                <NumpadButton value="9" label="9" />
+                            </View>
+                            <View style={styles.numpadRow}>
+                                <NumpadButton value="." label="." />
+                                <NumpadButton value="0" label="0" />
+                                <NumpadButton icon={Delete} />
+                            </View>
                         </View>
-                        <View style={styles.numpadRow}>
-                            <NumpadButton value="4" label="4" />
-                            <NumpadButton value="5" label="5" />
-                            <NumpadButton value="6" label="6" />
-                        </View>
-                        <View style={styles.numpadRow}>
-                            <NumpadButton value="7" label="7" />
-                            <NumpadButton value="8" label="8" />
-                            <NumpadButton value="9" label="9" />
-                        </View>
-                        <View style={styles.numpadRow}>
-                            <NumpadButton value="." label="." />
-                            <NumpadButton value="0" label="0" />
-                            <NumpadButton icon={Delete} />
-                        </View>
-                    </View>
+                    )}
 
                     {/* Action Buttons */}
                     <View style={styles.actions}>
@@ -180,7 +232,9 @@ export default function TransferScreen() {
                             {loading ? (
                                 <ActivityIndicator color="#ffffff" />
                             ) : (
-                                <Text style={styles.payButtonText}>{showRecipient ? "Confirm Pay" : "Pay"}</Text>
+                                <Text style={styles.payButtonText}>
+                                    {step === "amount" ? "Pay" : step === "recipient" ? "Continue" : "Confirm Pay"}
+                                </Text>
                             )}
                         </TouchableOpacity>
                     </View>
@@ -256,11 +310,96 @@ const styles = StyleSheet.create({
         color: '#000000',
     },
 
-    recipientContainer: {
-        backgroundColor: 'rgba(255,255,255,0.9)',
-        borderRadius: 16,
-        padding: 16,
-        marginTop: 20,
+    recipientStepContainer: {
+        marginTop: 40,
+        width: '100%',
+        paddingHorizontal: 4,
+    },
+    recipientInputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderBottomWidth: 1.5,
+        borderBottomColor: 'rgba(0,0,0,0.1)',
+        paddingVertical: 12,
+    },
+    recipientLabel: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#000000',
+        marginRight: 12,
+    },
+    recipientInputMinimal: {
+        flex: 1,
+        fontSize: 20,
+        color: '#000000',
+        padding: 0,
+    },
+    closeBtn: {
+        padding: 4,
+    },
+    suggestionsContainer: {
+        marginTop: 32,
+    },
+    suggestionsTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#000000',
+        opacity: 0.4,
+        marginBottom: 16,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    suggestionItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    suggestionAvatar: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    avatarText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#000000',
+    },
+    suggestionItemText: {
+        fontSize: 16,
+        color: '#000000',
+        fontWeight: '500',
+    },
+    confirmInfo: {
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    confirmRecipientRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    confirmTo: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#000000',
+        opacity: 0.7,
+    },
+    editIconBtn: {
+        marginLeft: 8,
+        padding: 4,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        borderRadius: 12,
+    },
+    editLink: {
+        fontSize: 14,
+        color: '#000000',
+        marginTop: 8,
+        textDecorationLine: 'underline',
+        opacity: 0.5,
     },
     recipientHeader: {
         flexDirection: 'row',

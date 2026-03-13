@@ -103,17 +103,7 @@ export default function LoginScreen() {
                 <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
                     {/* Hero Section */}
                     <Animated.View style={[styles.hero, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-                        <View style={styles.logoContainer}>
-                            <LinearGradient
-                                colors={["#05b959", "#04a14d"]}
-                                style={styles.logoIcon}
-                            >
-                                <View style={styles.logoInner}>
-                                    <Text style={styles.logoK}>K</Text>
-                                </View>
-                            </LinearGradient>
-                        </View>
-                        <Text style={[styles.heroTitle, { color: colors.text }]}>KennectFi</Text>
+                        <Text style={[styles.heroTitle, { color: colors.text }]}>KinnectFi</Text>
                         <Text style={[styles.heroSubtitle, { color: colors.subtext }]}>Your money, at the speed of the internet</Text>
                     </Animated.View>
 
@@ -126,7 +116,6 @@ export default function LoginScreen() {
                                     onPress={() => emailInputRef.current?.focus()}
                                     style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: colors.border }, focusedInput === 'email' && [styles.inputFocused, { borderColor: colors.primary, shadowColor: colors.primary }]]}
                                 >
-                                    <Text style={[styles.inputPrefix, { color: colors.subtext }]}>✉</Text>
                                     <TextInput
                                         ref={emailInputRef}
                                         style={[styles.input, { color: colors.text }]}
@@ -160,7 +149,6 @@ export default function LoginScreen() {
                                     onPress={() => otpInputRef.current?.focus()}
                                     style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: colors.border }, focusedInput === 'otp' && [styles.inputFocused, { borderColor: colors.primary, shadowColor: colors.primary }]]}
                                 >
-                                    <Text style={[styles.inputPrefix, { color: colors.subtext }]}>#</Text>
                                     <TextInput
                                         ref={otpInputRef}
                                         style={[styles.input, { color: colors.text }]}
@@ -196,7 +184,7 @@ export default function LoginScreen() {
                         </View>
 
                         <TouchableOpacity style={[styles.googleBtn, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={() => loginWithOAuth("google")} disabled={isPending}>
-                            <Text style={[styles.googleBtnText, { color: colors.text }]}>🔵  Continue with Google</Text>
+                            <Text style={[styles.googleBtnText, { color: colors.text }]}>Continue with Google</Text>
                         </TouchableOpacity>
                     </Animated.View>
 
@@ -218,33 +206,9 @@ const styles = StyleSheet.create({
     // Hero
     hero: {
         alignItems: "center",
-        paddingVertical: 48,
+        paddingVertical: 60,
     },
-    logoContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 12,
-        marginBottom: 20,
-    },
-    logoIcon: {
-        width: 56,
-        height: 56,
-        borderRadius: 16,
-        padding: 2,
-    },
-    logoInner: {
-        flex: 1,
-        backgroundColor: "#fff",
-        borderRadius: 14,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    logoK: {
-        color: "#05b959",
-        fontSize: 32,
-        fontWeight: "900",
-    },
-    heroTitle: { fontSize: 36, fontWeight: "800", color: "#000", letterSpacing: -1 },
+    heroTitle: { fontSize: 42, fontWeight: "800", color: "#000", letterSpacing: -1.5 },
     heroSubtitle: { fontSize: 15, color: "#888", marginTop: 8, textAlign: "center", lineHeight: 22 },
 
     // Form

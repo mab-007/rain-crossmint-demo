@@ -1,6 +1,6 @@
-# KennectFi EC2 Deployment & Remote Demo Guide
+# KinnectFi EC2 Deployment & Remote Demo Guide
 
-This guide explains how to host the KennectFi Expo demo on an AWS EC2 instance and share it with anyone using the Expo Go app and a tunnel.
+This guide explains how to host the KinnectFi Expo demo on an AWS EC2 instance and share it with anyone using the Expo Go app and a tunnel.
 
 ## 1. EC2 Instance Setup
 

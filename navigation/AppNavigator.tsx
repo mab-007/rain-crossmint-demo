@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -23,6 +23,7 @@ import CashDetailsScreen from "../screens/CashDetailsScreen";
 import LandingScreen from "../screens/LandingScreen";
 import ExploreScreen from "../screens/ExploreScreen";
 import CardSettingsScreen from "../screens/CardSettingsScreen";
+import ExchangeScreen from "../screens/ExchangeScreen";
 
 export type RootStackParamList = {
     Landing: undefined;
@@ -37,6 +38,31 @@ export type RootStackParamList = {
     CashDetails: undefined;
     Explore: undefined;
     CardSettings: undefined;
+    Exchange: undefined;
+};
+
+const CurrencySymbol = ({ color, size }: { color: string; size: number }) => {
+    const [symbol, setSymbol] = useState("$");
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setSymbol((prev) => (prev === "$" ? "₱" : "$"));
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <View style={{ width: size, justifyContent: 'center', alignItems: 'center' }}>
+            <RNText style={{
+                color,
+                fontSize: size + 2,
+                fontWeight: '800',
+                marginTop: -4
+            }}>
+                {symbol}
+            </RNText>
+        </View>
+    );
 };
 
 export type MainTabParamList = {
@@ -83,19 +109,7 @@ function MainTabs() {
                     if (route.name === "Account") {
                         return <Home size={size} color={color} />;
                     } else if (route.name === "Transfer") {
-                        return (
-                            <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
-                                <RNText style={{
-                                    color,
-                                    fontSize: size + 4,
-                                    fontWeight: '800',
-                                    fontStyle: 'italic',
-                                    marginTop: -2
-                                }}>
-                                    $
-                                </RNText>
-                            </View>
-                        );
+                        return <CurrencySymbol color={color} size={size} />;
                     } else if (route.name === "Card") {
                         return <CreditCard size={size} color={color} />;
                     }
@@ -143,7 +157,7 @@ export default function AppNavigator() {
                         <Stack.Screen
                             name="Login"
                             component={LoginScreen}
-                            options={{ title: "KennectFi", headerShown: false }}
+                            options={{ title: "KinnectFi", headerShown: false }}
                         />
                     </>
                 ) : (
@@ -156,12 +170,12 @@ export default function AppNavigator() {
                         <Stack.Screen
                             name="Balances"
                             component={BalancesScreen}
-                            options={{ title: "Balances" }}
+                            options={{ headerShown: false }}
                         />
                         <Stack.Screen
                             name="Fund"
                             component={FundScreen}
-                            options={{ title: "Add Money" }}
+                            options={{ headerShown: false }}
                         />
                         <Stack.Screen
                             name="Transactions"
@@ -196,6 +210,11 @@ export default function AppNavigator() {
                         <Stack.Screen
                             name="CardSettings"
                             component={CardSettingsScreen}
+                            options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                            name="Exchange"
+                            component={ExchangeScreen}
                             options={{ headerShown: false }}
                         />
                     </>

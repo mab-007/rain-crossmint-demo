@@ -17,7 +17,8 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useTheme } from "../context/ThemeContext";
-import { ArrowRight, X, Send, ArrowDownLeft, PieChart, Grid, Check, ChevronLeft, Settings } from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { ArrowRight, X, Send, ArrowDownLeft, PieChart, Grid, Check, ChevronLeft, Settings, Plus, Apple } from "lucide-react-native";
 
 const { width, height } = Dimensions.get("window");
 
@@ -33,7 +34,7 @@ export default function ExploreScreen() {
         <View style={styles.content}>
             {/* Hero Text */}
             <View style={styles.heroContainer}>
-                <Text style={styles.heroText}>
+                <Text style={[styles.heroText, { color: colors.text }]}>
                     For travelers, entrepreneurs and global investors
                 </Text>
             </View>
@@ -63,10 +64,10 @@ export default function ExploreScreen() {
 
             {/* Bottom Navigation Arrow */}
             <TouchableOpacity
-                style={styles.arrowButton}
+                style={[styles.arrowButton, { backgroundColor: colors.text }]}
                 onPress={() => setStep("naming")}
             >
-                <ArrowRight size={32} color="#fff" />
+                <ArrowRight size={32} color={colors.background} />
             </TouchableOpacity>
         </View>
     );
@@ -77,8 +78,8 @@ export default function ExploreScreen() {
             style={styles.content}
         >
             <View style={styles.namingHeader}>
-                <Text style={styles.namingTitle}>Personalize your card</Text>
-                <Text style={styles.namingSubtitle}>Enter the name you'd like to see engraved</Text>
+                <Text style={[styles.namingTitle, { color: colors.text }]}>Personalize your card</Text>
+                <Text style={[styles.namingSubtitle, { color: colors.subtext }]}>Enter the name you'd like to see engraved</Text>
             </View>
 
             <View style={styles.verticalCardWrapper}>
@@ -106,45 +107,86 @@ export default function ExploreScreen() {
 
             <View style={styles.inputContainer}>
                 <TextInput
-                    style={styles.textInput}
+                    style={[styles.textInput, { color: colors.text, backgroundColor: theme === 'light' ? '#f5f5f5' : 'rgba(255,255,255,0.1)' }]}
                     placeholder="Enter name"
-                    placeholderTextColor="rgba(255,255,255,0.3)"
+                    placeholderTextColor={colors.subtext}
                     value={cardName}
                     onChangeText={setCardName}
                     autoFocus
                     maxLength={20}
                 />
                 <TouchableOpacity
-                    style={[styles.doneButton, { backgroundColor: cardName ? "#05b959" : "rgba(255,255,255,0.1)" }]}
+                    style={[styles.doneButton, { backgroundColor: cardName ? "#05b959" : (theme === 'light' ? 'rgba(0,0,0,0.05)' : "rgba(255,255,255,0.1)") }]}
                     onPress={() => setStep("settled")}
                     disabled={!cardName}
                 >
-                    <ArrowRight size={24} color="#fff" />
+                    <ArrowRight size={24} color={colors.background} />
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
     );
 
     const renderSettled = () => (
-        <ScrollView style={styles.settledContainer} showsVerticalScrollIndicator={false}>
+        <ScrollView style={[styles.settledContainer, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
             <View style={styles.settledHeader}>
                 <TouchableOpacity
                     style={styles.backButton}
                     onPress={() => navigation.goBack()}
                 >
-                    <ChevronLeft size={28} color="#fff" />
+                    <ChevronLeft size={28} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={styles.settledTitle}>Card Management</Text>
+                <Text style={[styles.settledTitle, { color: colors.text }]}>Card Management</Text>
             </View>
 
-            <View style={styles.dashboardCardWrapper}>
-                <View style={styles.dashboardCard}>
-                    <Image
-                        source={require("../assets/marble_texture.png")}
-                        style={styles.cardImage}
-                        resizeMode="cover"
-                    />
-                    <View style={styles.dashboardChipContainer}>
+            <View style={styles.stackedCardContainer}>
+                {/* Add New Card Slot */}
+                <TouchableOpacity
+                    style={[styles.addCardSlot, { backgroundColor: theme === 'light' ? '#f0f0f0' : '#222', borderColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }]}
+                    onPress={() => setStep("hero")}
+                >
+                    <Text style={[styles.addCardText, { color: colors.text }]}>Add new card</Text>
+                    <View style={[styles.addCardIconCircle, { backgroundColor: colors.text }]}>
+                        <Plus size={16} color={colors.background} />
+                    </View>
+                </TouchableOpacity>
+
+                {/* Stacked Background Card (Visual Only) */}
+                <View style={[styles.backgroundCard, { top: 40, zIndex: 1, backgroundColor: '#1A1A1A' }]}>
+                    <View style={styles.backgroundCardHeader}>
+                        <View style={styles.mastercardLogoSmall}>
+                            <View style={[styles.logoCircleSmall, { backgroundColor: '#EB001B', opacity: 0.8 }]} />
+                            <View style={[styles.logoCircleSmall, { backgroundColor: '#F79E1B', opacity: 0.8, marginLeft: -6 }]} />
+                        </View>
+                        <Text style={styles.backgroundCardNumber}>•••• •••• 3507</Text>
+                    </View>
+                </View>
+
+                {/* Main Active Card - 3 Section Design */}
+                <View style={[styles.mainCard, {
+                    top: 80,
+                    zIndex: 2,
+                    backgroundColor: theme === 'light' ? '#FFFFFF' : '#121212',
+                    borderColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)'
+                }]}>
+                    {/* Top Section: Clean Minimalist Matte */}
+                    <View style={[styles.cardSectionTop, { borderBottomColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
+                        <LinearGradient
+                            colors={theme === 'light' ? ['#F9F9F9', '#FFFFFF'] : ['#1A1A1A', '#252525']}
+                            style={StyleSheet.absoluteFill}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 0, y: 1 }}
+                        />
+                        <View style={[styles.minimalistLogo, { backgroundColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]} />
+                    </View>
+
+                    {/* Middle Section: Brushed Metal Band */}
+                    <View style={styles.cardSectionMiddle}>
+                        <LinearGradient
+                            colors={theme === 'light' ? ['#F0F0F0', '#E5E5E5', '#F0F0F0'] : ['#2A2A2A', '#353535', '#2A2A2A']}
+                            style={StyleSheet.absoluteFill}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                        />
                         <View style={styles.chip}>
                             <View style={styles.chipInner}>
                                 <View style={styles.chipLine} />
@@ -154,11 +196,20 @@ export default function ExploreScreen() {
                             </View>
                         </View>
                     </View>
-                    <View style={styles.dashboardCardInfo}>
-                        <Text style={styles.dashboardCardBalance}>$ 12,034.98</Text>
-                        <View style={styles.dashboardCardBottom}>
-                            <Text style={styles.dashboardCardName}>{cardName.toUpperCase()}</Text>
-                            <Text style={styles.dashboardCardExpiry}>02/30</Text>
+
+                    {/* Bottom Section: Matte Metal Finish */}
+                    <View style={[styles.cardSectionBottom, { borderTopColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
+                        <LinearGradient
+                            colors={theme === 'light' ? ['#FFFFFF', '#F9F9F9'] : ['#252525', '#1A1A1A']}
+                            style={StyleSheet.absoluteFill}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 0, y: 1 }}
+                        />
+                        <Text style={[styles.cardHolderNameNew, { color: theme === 'light' ? '#333' : '#E0E0E0' }]}>{cardName.toUpperCase() || "INAAYA CHANDRA"}</Text>
+                        <View style={styles.graphicElement}>
+                            <View style={[styles.graphicHalf, { backgroundColor: '#EB001B' }]} />
+                            <View style={[styles.graphicHalf, { backgroundColor: '#0033A0' }]} />
+                            <View style={styles.graphicOverlay} />
                         </View>
                     </View>
                 </View>
@@ -167,63 +218,67 @@ export default function ExploreScreen() {
             <View style={styles.actionGrid}>
                 <TouchableOpacity
                     style={styles.actionItem}
-                    onPress={() => navigation.navigate('Transfer')}
+                    onPress={() => (navigation as any).navigate('Main', { screen: 'Transfer' })}
                 >
-                    <View style={styles.actionIconWrapper}>
+                    <View style={[styles.actionIconWrapper, { backgroundColor: theme === 'light' ? '#f5f5f5' : '#1A1A1A' }]}>
                         <Send size={24} color="#05b959" />
                     </View>
-                    <Text style={styles.actionLabel}>Send</Text>
+                    <Text style={[styles.actionLabel, { color: colors.subtext }]}>Send</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionItem}>
-                    <View style={styles.actionIconWrapper}>
+                    <View style={[styles.actionIconWrapper, { backgroundColor: theme === 'light' ? '#f5f5f5' : '#1A1A1A' }]}>
                         <ArrowDownLeft size={24} color="#05b959" />
                     </View>
-                    <Text style={styles.actionLabel}>Request</Text>
+                    <Text style={[styles.actionLabel, { color: colors.subtext }]}>Request</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.actionItem}
-                    onPress={() => navigation.navigate('Insights')}
+                    onPress={() => (navigation as any).navigate('Main', { screen: 'Insights' })}
                 >
-                    <View style={styles.actionIconWrapper}>
+                    <View style={[styles.actionIconWrapper, { backgroundColor: theme === 'light' ? '#f5f5f5' : '#1A1A1A' }]}>
                         <PieChart size={24} color="#05b959" />
                     </View>
-                    <Text style={styles.actionLabel}>Statistic</Text>
+                    <Text style={[styles.actionLabel, { color: colors.subtext }]}>Statistic</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.actionItem}
-                    onPress={() => navigation.navigate('CardSettings')}
+                    onPress={() => (navigation as any).navigate('CardSettings')}
                 >
-                    <View style={styles.actionIconWrapper}>
+                    <View style={[styles.actionIconWrapper, { backgroundColor: theme === 'light' ? '#f5f5f5' : '#1A1A1A' }]}>
                         <Settings size={24} color="#05b959" />
                     </View>
-                    <Text style={styles.actionLabel}>Settings</Text>
+                    <Text style={[styles.actionLabel, { color: colors.subtext }]}>Settings</Text>
                 </TouchableOpacity>
             </View>
 
             <View style={styles.transactionsSection}>
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>Recent transaction</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent transaction</Text>
                     <TouchableOpacity>
-                        <Text style={styles.viewAllText}>View all</Text>
+                        <Text style={[styles.viewAllText, { color: colors.subtext }]}>View all</Text>
                     </TouchableOpacity>
                 </View>
 
                 {[
                     { id: 1, name: "Adobe Creative suite", type: "Subscription", amount: "-$242", time: "Today, 12:03 PM", icon: "A" },
                     { id: 2, name: "Wise - from Zack", type: "Transfer", amount: "+$2,499", time: "Yesterday", icon: "W" },
-                    { id: 3, name: "Apple", type: "Online payment", amount: "-$6,733", time: "Today, 12:03 PM", icon: "" },
+                    { id: 3, name: "Apple", type: "Online payment", amount: "-$6,733", time: "Today, 12:03 PM", icon: Apple },
                 ].map((tx) => (
-                    <View key={tx.id} style={styles.transactionItem}>
-                        <View style={styles.txIconWrapper}>
-                            <Text style={styles.txIconText}>{tx.icon}</Text>
+                    <View key={tx.id} style={[styles.transactionItem, { backgroundColor: theme === 'light' ? '#f9f9f9' : '#111' }]}>
+                        <View style={[styles.txIconWrapper, { backgroundColor: theme === 'light' ? '#f0f0f0' : '#1A1A1A' }]}>
+                            {typeof tx.icon === 'string' ? (
+                                <Text style={[styles.txIconText, { color: colors.text }]}>{tx.icon}</Text>
+                            ) : (
+                                <tx.icon size={20} color={colors.text} />
+                            )}
                         </View>
                         <View style={styles.txInfo}>
-                            <Text style={styles.txName}>{tx.name}</Text>
-                            <Text style={styles.txType}>{tx.type}</Text>
+                            <Text style={[styles.txName, { color: colors.text }]}>{tx.name}</Text>
+                            <Text style={[styles.txType, { color: colors.subtext }]}>{tx.type}</Text>
                         </View>
                         <View style={styles.txAmountWrapper}>
-                            <Text style={[styles.txAmount, { color: tx.amount.startsWith('+') ? "#05b959" : "#fff" }]}>{tx.amount}</Text>
-                            <Text style={styles.txTime}>{tx.time}</Text>
+                            <Text style={[styles.txAmount, { color: tx.amount.startsWith('+') ? "#05b959" : colors.text }]}>{tx.amount}</Text>
+                            <Text style={[styles.txTime, { color: colors.subtext }]}>{tx.time}</Text>
                         </View>
                     </View>
                 ))}
@@ -232,8 +287,8 @@ export default function ExploreScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: "#000" }]}>
-            <StatusBar barStyle="light-content" />
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <StatusBar barStyle={theme === "light" ? "dark-content" : "light-content"} />
 
             {/* Close Button - Only for naming flow */}
             {step !== "settled" && (
@@ -241,7 +296,7 @@ export default function ExploreScreen() {
                     style={styles.closeButton}
                     onPress={() => navigation.goBack()}
                 >
-                    <X size={28} color="#fff" />
+                    <X size={28} color={colors.text} />
                 </TouchableOpacity>
             )}
 
@@ -451,61 +506,142 @@ const styles = StyleSheet.create({
     backButton: {
         marginLeft: -8,
     },
-    dashboardCardWrapper: {
-        marginBottom: 30,
-    },
-    dashboardCard: {
-        width: '100%',
-        height: (width - 48) * 0.63,
-        borderRadius: 20,
-        overflow: 'hidden',
-        backgroundColor: '#111',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 15 },
-        shadowOpacity: 0.4,
-        shadowRadius: 20,
-        elevation: 10,
-    },
-    dashboardChipContainer: {
-        position: 'absolute',
-        bottom: '15%',
-        right: '10%',
-    },
-    dashboardCardInfo: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        padding: 24,
-        justifyContent: 'center',
-    },
-    dashboardCardBalance: {
-        fontSize: 36,
-        fontWeight: '700',
-        color: '#fff',
-        textAlign: 'center',
+    stackedCardContainer: {
+        width: "100%",
+        height: 320,
+        position: 'relative',
         marginBottom: 20,
     },
-    dashboardCardBottom: {
-        position: 'absolute',
-        bottom: 24,
-        left: 24,
-        right: 24,
+    addCardSlot: {
+        width: "100%",
+        height: 60,
+        borderRadius: 16,
+        backgroundColor: '#222', // More opaque
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        position: 'absolute',
+        top: 0,
+        zIndex: 0,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    addCardText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    addCardIconCircle: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    backgroundCard: {
+        width: "100%",
+        height: 200,
+        borderRadius: 24,
+        position: 'absolute',
+        padding: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 15,
+        elevation: 5,
+    },
+    backgroundCardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    mastercardLogoSmall: {
+        flexDirection: 'row',
+    },
+    logoCircleSmall: {
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+    },
+    backgroundCardNumber: {
+        color: 'rgba(255, 255, 255, 0.5)',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    mainCard: {
+        width: "100%",
+        height: 230,
+        borderRadius: 16,
+        overflow: "hidden",
+        position: "absolute",
+        backgroundColor: '#121212', // Midnight Onyx
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 15 },
+        shadowOpacity: 0.6,
+        shadowRadius: 20,
+        elevation: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    cardSectionTop: {
+        height: '30%',
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+        borderBottomWidth: 0.5,
+        borderBottomColor: 'rgba(255,255,255,0.1)',
+        overflow: 'hidden',
+    },
+    cardSectionMiddle: {
+        height: '40%',
+        width: '100%',
+        justifyContent: 'center',
         alignItems: 'flex-end',
+        paddingHorizontal: 24,
+        overflow: 'hidden',
     },
-    dashboardCardName: {
+    cardSectionBottom: {
+        height: '30%',
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+        borderTopWidth: 0.5,
+        borderTopColor: 'rgba(255,255,255,0.1)',
+        overflow: 'hidden',
+    },
+    minimalistLogo: {
+        width: 24,
+        height: 24,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 4,
+    },
+    cardHolderNameNew: {
         fontSize: 14,
         fontWeight: '600',
-        color: 'rgba(255,255,255,0.8)',
-        letterSpacing: 1,
+        color: '#E0E0E0', // Silver/White
+        letterSpacing: 2,
     },
-    dashboardCardExpiry: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: 'rgba(255,255,255,0.8)',
+    graphicElement: {
+        width: 80,
+        height: 40,
+        flexDirection: 'row',
+        borderRadius: 4,
+        overflow: 'hidden',
+        position: 'relative',
+    },
+    graphicHalf: {
+        flex: 1,
+    },
+    graphicOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
     },
     actionGrid: {
         flexDirection: 'row',

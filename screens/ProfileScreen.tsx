@@ -1,4 +1,5 @@
 import React from "react";
+import * as Clipboard from "expo-clipboard";
 import {
     View,
     Text,
@@ -11,7 +12,7 @@ import {
 } from "react-native";
 import { useCrossmintAuth, useWallet } from "@crossmint/client-sdk-react-native-ui";
 import { useNavigation } from "@react-navigation/native";
-import { X, LogOut, Mail, Wallet, ChevronRight, Shield, Bell, HelpCircle, Moon } from "lucide-react-native";
+import { X, LogOut, Mail, Wallet, ChevronRight, Shield, Bell, HelpCircle, Moon, Copy } from "lucide-react-native";
 import { useTheme } from "../context/ThemeContext";
 
 export default function ProfileScreen() {
@@ -29,6 +30,11 @@ export default function ProfileScreen() {
             { text: "Cancel", style: "cancel" },
             { text: "Log out", style: "destructive", onPress: () => { try { logout(); } catch { } } },
         ]);
+    };
+
+    const copyToClipboard = async (text: string, label: string) => {
+        await Clipboard.setStringAsync(text);
+        Alert.alert("Copied", `${label} copied to clipboard`);
     };
 
     const SettingsRow = ({ icon: Icon, label, sublabel, color = colors.text, onPress, isDestructive = false, rightElement }: any) => (
@@ -73,6 +79,8 @@ export default function ProfileScreen() {
                         label="Email"
                         sublabel={user?.email}
                         color={colors.subtext}
+                        onPress={() => user?.email && copyToClipboard(user.email, "Email")}
+                        rightElement={<Copy size={16} color={colors.subtext} />}
                     />
                     <View style={[styles.rowDivider, { backgroundColor: colors.border }]} />
                     <SettingsRow
@@ -80,6 +88,8 @@ export default function ProfileScreen() {
                         label="Wallet Address"
                         sublabel={wallet?.address}
                         color={colors.subtext}
+                        onPress={() => wallet?.address && copyToClipboard(wallet.address, "Wallet Address")}
+                        rightElement={<Copy size={16} color={colors.subtext} />}
                     />
                 </View>
 
@@ -107,7 +117,7 @@ export default function ProfileScreen() {
                     <SettingsRow icon={HelpCircle} label="Help & Support" color="#30B0C7" />
                 </View>
 
-                {/* Logout */}
+                <Text style={[styles.sectionLabel, { color: colors.subtext }]}>APP SETTINGS</Text>
                 <View style={[styles.settingsCard, { backgroundColor: colors.card, shadowColor: colors.text }]}>
                     <SettingsRow
                         icon={LogOut}

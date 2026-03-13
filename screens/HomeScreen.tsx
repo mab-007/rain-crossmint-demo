@@ -104,16 +104,19 @@ export default function HomeScreen() {
                         onPress={() => navigation.navigate("CashDetails")}
                     >
                         <View style={{ flex: 1 }}>
-                            <View style={styles.titleRow}>
-                                <Text style={[styles.cardLabelLarge, { color: colors.text }]}>Cash balance 🇺🇸</Text>
+                            <View style={styles.phpTitleRow}>
+                                <Text style={styles.flagEmoji}>🇺🇸</Text>
+                                <View>
+                                    <Text style={[styles.cardLabelLarge, { color: colors.text }]}>Cash balance</Text>
+                                    <Text style={[styles.cardSubtitle, { color: colors.subtext }]}>USD</Text>
+                                </View>
                             </View>
-                            <Text style={[styles.cardSubtitle, { color: colors.subtext }]}>USD</Text>
                             <Text style={[styles.balanceTextLarge, { color: colors.text }]}>
                                 ${Number(balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </Text>
                             <View style={styles.interestRow}>
                                 <TrendingUp size={13} color={colors.primary} />
-                                <Text style={[styles.interestEarnedText, { color: colors.primary }]}>Interest earned $12.45</Text>
+                                <Text style={[styles.interestEarnedText, { color: colors.primary }]}>Interest earned up to 6.5%</Text>
                             </View>
                         </View>
                         <ChevronRight size={22} color={colors.subtext} />
@@ -158,7 +161,7 @@ export default function HomeScreen() {
                             </Text>
                             <View style={styles.interestRow}>
                                 <TrendingUp size={13} color={colors.primary} />
-                                <Text style={[styles.interestEarnedText, { color: colors.primary }]}>Interest earned ₱{phpInterest}</Text>
+                                <Text style={[styles.interestEarnedText, { color: colors.primary }]}>Interest earned up to 6.5%</Text>
                             </View>
                         </View>
                     </View>

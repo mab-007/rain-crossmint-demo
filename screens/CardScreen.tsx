@@ -1,5 +1,6 @@
 import React, { useRef, useCallback } from "react";
 import { View, Text, StyleSheet, SafeAreaView, Image, Dimensions, TouchableOpacity, Animated, Easing, StatusBar } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useCrossmintAuth } from "@crossmint/client-sdk-react-native-ui";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../context/ThemeContext";
@@ -115,10 +116,13 @@ export default function CardScreen() {
                             },
                         ]}
                     >
-                        <Image
-                            source={require("../assets/card.png")}
-                            style={styles.cardImage}
-                            resizeMode="cover"
+                        <LinearGradient
+                            colors={theme === "dark"
+                                ? ["#2C2C2C", "#1A1A1A", "#000000"]
+                                : ["#434343", "#282828", "#1A1A1A", "#000000"]}
+                            style={styles.cardGradient}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
                         />
                         {/* Gold Chip Overlay */}
                         <View style={styles.chipContainer}>
@@ -201,14 +205,13 @@ const styles = StyleSheet.create({
         height: width * 1.0,
         borderRadius: 24,
         overflow: "hidden",
-        backgroundColor: "#000",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 20 },
         shadowOpacity: 0.4,
         shadowRadius: 40,
         elevation: 20,
     },
-    cardImage: {
+    cardGradient: {
         width: "100%",
         height: "100%",
     },

@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useWallet } from "@crossmint/client-sdk-react-native-ui";
 import { useNavigation } from "@react-navigation/native";
-import { Delete, CheckCircle2, X } from "lucide-react-native";
+import { Delete, CheckCircle2, ChevronLeft } from "lucide-react-native";
 import { useTheme } from "../context/ThemeContext";
 
 const { width, height } = Dimensions.get("window");
@@ -71,11 +71,35 @@ export default function FundScreen() {
         </TouchableOpacity>
     );
 
+    const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+    const loadingMessages = [
+        "Securing your transaction...",
+        "Minting your stablecoins...",
+        "Finalizing on-chain...",
+        "Almost there...",
+        "Verifying with Crossmint...",
+    ];
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (status === "loading") {
+            interval = setInterval(() => {
+                setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+            }, 2500);
+        }
+        return () => clearInterval(interval);
+    }, [status]);
+
     if (status === "loading") {
         return (
             <View style={[styles.centered, { backgroundColor: colors.background }]}>
-                <ActivityIndicator size="large" color={colors.primary} />
-                <Text style={[styles.statusText, { color: colors.text }]}>Adding ${amount} USDXM...</Text>
+                <View style={{ transform: [{ scale: 1.5 }], marginBottom: 40 }}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </View>
+                <Text style={[styles.statusText, { color: colors.text }]}>Adding ${amount}...</Text>
+                <Text style={[styles.subStatusText, { color: colors.subtext, marginTop: 12 }]}>
+                    {loadingMessages[loadingMessageIndex]}
+                </Text>
             </View>
         );
     }
@@ -107,17 +131,15 @@ export default function FundScreen() {
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <View style={[styles.header, { backgroundColor: colors.background }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.closeBtn, { backgroundColor: colors.card }]}>
-                    <X size={24} color={colors.text} />
+                    <ChevronLeft size={24} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.text }]}>Add Money</Text>
-                <View style={{ width: 24 }} />
+                <Text style={[styles.headerTitle, { color: colors.text }]}>Add money</Text>
             </View>
 
             <View style={styles.content}>
                 {/* Amount Display */}
                 <View style={styles.amountContainer}>
                     <Text style={[styles.amountText, { color: colors.text }]}>${amount}</Text>
-                    <Text style={[styles.currencyLabel, { color: colors.subtext }]}>USDXM</Text>
                 </View>
 
                 {/* Suggestions */}
@@ -178,18 +200,22 @@ const styles = StyleSheet.create({
     container: { flex: 1 },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 12,
+        gap: 12,
     },
     headerTitle: {
-        fontSize: 17,
+        fontSize: 20,
         fontWeight: '700',
         color: '#000',
     },
     closeBtn: {
-        padding: 4,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     content: { flex: 1, paddingHorizontal: 24, justifyContent: 'space-between', paddingBottom: 100 },
 

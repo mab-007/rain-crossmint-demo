@@ -11,7 +11,7 @@ import {
     Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { ChevronLeft, ChevronRight, Plus, ArrowDownLeft, Wallet } from "lucide-react-native";
+import { ChevronLeft, ChevronRight, Plus, ArrowLeftRight, Wallet } from "lucide-react-native";
 import { useTheme } from "../context/ThemeContext";
 
 const { height } = Dimensions.get("window");
@@ -60,10 +60,10 @@ export default function CashDetailsScreen() {
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.heroBtn, { backgroundColor: colors.background }]}
-                            onPress={() => Alert.alert("Withdraw", "Withdrawal feature coming soon!")}
+                            onPress={() => navigation.navigate("Exchange" as never)}
                         >
-                            <ArrowDownLeft size={16} color={colors.text} />
-                            <Text style={[styles.heroBtnSecText, { color: colors.text }]}>Withdraw</Text>
+                            <ArrowLeftRight size={16} color={colors.text} />
+                            <Text style={[styles.heroBtnSecText, { color: colors.text }]}>Exchange</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

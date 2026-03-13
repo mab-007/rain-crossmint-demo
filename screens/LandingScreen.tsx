@@ -9,6 +9,7 @@ import {
     StatusBar,
     Animated,
     Easing,
+    Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -26,12 +27,13 @@ const SLIDES = [
         title: "Banking Built for Global Families",
         description: "For travelers, entrepreneurs, and global citizens supporting loved ones in the Philippines.",
         icon: Globe,
+        image: require("../assets/Global family.png"),
         color: "#05b959",
     },
     {
         id: 2,
         title: "Pay Globally with Best Rates",
-        description: "Unparalleled rewards and seamless dual-currency spending with your KennectFi card.",
+        description: "Unparalleled rewards and seamless dual-currency spending with your KinnectFi card.",
         icon: CreditCard,
         color: "#3b82f6",
     },
@@ -40,6 +42,7 @@ const SLIDES = [
         title: "Convert at the Real Rate",
         description: "Same pesos, more digital dollars with an industry-leading 5% annual yield on your savings.",
         icon: TrendingUp,
+        image: require("../assets/Real rate conversion.png"),
         color: "#8b5cf6",
     },
     {
@@ -47,6 +50,7 @@ const SLIDES = [
         title: "Instant Transfers, Zero Friction",
         description: "Move money at the speed of light. Secure, borderless payments for the modern world.",
         icon: Zap,
+        image: require("../assets/Instant transfers.png"),
         color: "#f59e0b",
     },
 ];
@@ -238,6 +242,16 @@ export default function LandingScreen() {
     });
 
     const renderVisual = () => {
+        if (currentSlide.image) {
+            return (
+                <Image
+                    source={currentSlide.image}
+                    style={styles.slideImage}
+                    resizeMode="contain"
+                />
+            );
+        }
+
         switch (activeSlide) {
             case 1:
                 return <CardStack />;
@@ -266,7 +280,7 @@ export default function LandingScreen() {
                     {/* Refined Logo Section */}
                     <View style={styles.header}>
                         <View style={styles.logoContainer}>
-                            <Text style={styles.brandName}>KennectFi</Text>
+                            <Text style={styles.brandName}>KinnectFi</Text>
                         </View>
                     </View>
 
@@ -561,5 +575,9 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         zIndex: -1,
         opacity: 0.8,
+    },
+    slideImage: {
+        width: width * 0.8,
+        height: 240,
     },
 });
