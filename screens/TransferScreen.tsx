@@ -11,14 +11,18 @@ import {
     TextInput,
     Image as RNImage,
     ScrollView,
-    Dimensions
+    Dimensions,
+    useWindowDimensions
 } from "react-native";
 import { useWallet, useCrossmintAuth } from "@crossmint/client-sdk-react-native-ui";
 import { useNavigation } from "@react-navigation/native";
 import { Delete, X, Pencil, ChevronLeft, Users, User, Briefcase, MoreHorizontal } from "lucide-react-native";
 import { useTheme } from "../context/ThemeContext";
 
-const { height } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+// Base dimensions for scaling (iPhone 16 Pro Max is large, let's use a standard base like 393 for iPhone 15/16)
+const scale = SCREEN_WIDTH / 393;
+const normalize = (size: number) => Math.round(size * scale);
 
 export default function TransferScreen() {
     const { user } = useCrossmintAuth();
@@ -151,7 +155,7 @@ export default function TransferScreen() {
             onPress={() => value ? handleNumberPress(value) : (Icon ? handleDelete() : null)}
         >
             <View style={styles.numpadButtonInner}>
-                {label ? <Text style={styles.numpadText}>{label}</Text> : (Icon && <Icon size={22} color="#000000" />)}
+                {label ? <Text style={styles.numpadText}>{label}</Text> : (Icon && <Icon size={normalize(22)} color="#000000" />)}
             </View>
         </TouchableOpacity>
     );
@@ -159,18 +163,13 @@ export default function TransferScreen() {
     return (
         <View style={[styles.container, { backgroundColor: colors.primary }]}>
             <SafeAreaView style={styles.safeArea}>
-                <ScrollView
-                    style={styles.scrollView}
-                    contentContainerStyle={styles.scrollContent}
-                    showsVerticalScrollIndicator={false}
-                    keyboardShouldPersistTaps="handled"
-                >
+                <View style={styles.content}>
                     {/* Header */}
                     <View style={styles.header}>
                         <View style={styles.headerLeft}>
                             {step !== "amount" && (
                                 <TouchableOpacity onPress={handleBack} style={styles.backBtn}>
-                                    <ChevronLeft size={28} color="#000000" />
+                                    <ChevronLeft size={normalize(28)} color="#000000" />
                                 </TouchableOpacity>
                             )}
                             <Text style={styles.headerTitle}>Transfer</Text>
@@ -220,7 +219,7 @@ export default function TransferScreen() {
                                         onPress={() => setStep("recipient")}
                                         style={styles.editIconBtn}
                                     >
-                                        <Pencil size={16} color="#000000" />
+                                        <Pencil size={normalize(16)} color="#000000" />
                                     </TouchableOpacity>
                                 </View>
 
@@ -288,7 +287,7 @@ export default function TransferScreen() {
                                     autoCapitalize="none"
                                 />
                                 <TouchableOpacity onPress={() => setStep("amount")} style={styles.closeBtn}>
-                                    <X size={20} color="#000000" />
+                                    <X size={normalize(20)} color="#000000" />
                                 </TouchableOpacity>
                             </View>
 
@@ -305,7 +304,7 @@ export default function TransferScreen() {
                                                 style={[styles.tagItem, isSelected && styles.tagItemActive]}
                                                 onPress={() => setSelectedTag(isSelected ? null : tag.label)}
                                             >
-                                                <Icon size={16} color={isSelected ? "#ffffff" : "#000000"} />
+                                                <Icon size={normalize(16)} color={isSelected ? "#ffffff" : "#000000"} />
                                                 <Text style={[styles.tagLabel, isSelected && styles.tagLabelActive]}>{tag.label}</Text>
                                             </TouchableOpacity>
                                         );
@@ -378,7 +377,7 @@ export default function TransferScreen() {
                             )}
                         </TouchableOpacity>
                     </View>
-                </ScrollView>
+                </View>
             </SafeAreaView>
         </View>
     );
@@ -387,19 +386,19 @@ export default function TransferScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     safeArea: { flex: 1 },
-    scrollView: { flex: 1 },
-    scrollContent: {
-        flexGrow: 1,
+    content: {
+        flex: 1,
         paddingHorizontal: 24,
-        paddingBottom: 60,
+        paddingBottom: normalize(16),
+        justifyContent: 'space-between',
     },
 
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
-        marginTop: 8,
+        marginBottom: normalize(16),
+        marginTop: normalize(8),
     },
     headerLeft: {
         flexDirection: 'row',
@@ -430,28 +429,28 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
     },
     avatarTextSmall: {
-        fontSize: 18,
+        fontSize: normalize(18),
         fontWeight: '800',
     },
 
     amountContainer: {
         alignItems: 'center',
-        marginTop: height * 0.04,
-        marginBottom: 20,
+        marginTop: SCREEN_HEIGHT * 0.02,
+        marginBottom: normalize(12),
     },
     amountText: {
-        fontSize: 80,
+        fontSize: normalize(64),
         fontWeight: '700',
         color: '#000000',
-        marginBottom: 16,
+        marginBottom: normalize(4),
     },
     segmentedControl: {
         flexDirection: 'row',
         backgroundColor: 'rgba(0,0,0,0.05)',
-        borderRadius: 24,
-        padding: 4,
-        width: '70%',
-        marginTop: 10,
+        borderRadius: normalize(24),
+        padding: normalize(4),
+        width: '75%',
+        marginTop: normalize(4),
     },
     segment: {
         flex: 1,
@@ -471,7 +470,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     segmentText: {
-        fontSize: 14,
+        fontSize: normalize(14),
         fontWeight: '700',
         color: '#000000',
         opacity: 0.5,
@@ -481,7 +480,7 @@ const styles = StyleSheet.create({
         opacity: 1,
     },
     segmentBalance: {
-        fontSize: 12,
+        fontSize: normalize(12),
         fontWeight: '600',
         color: '#000000',
         opacity: 0.3,
@@ -504,14 +503,14 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
     },
     recipientLabel: {
-        fontSize: 20,
+        fontSize: normalize(20),
         fontWeight: '600',
         color: '#000000',
-        marginRight: 12,
+        marginRight: normalize(12),
     },
     recipientInputMinimal: {
         flex: 1,
-        fontSize: 20,
+        fontSize: normalize(20),
         color: '#000000',
         padding: 0,
     },
@@ -522,11 +521,11 @@ const styles = StyleSheet.create({
         marginTop: 32,
     },
     suggestionsTitle: {
-        fontSize: 14,
+        fontSize: normalize(14),
         fontWeight: '600',
         color: '#000000',
         opacity: 0.4,
-        marginBottom: 16,
+        marginBottom: normalize(16),
         textTransform: 'uppercase',
         letterSpacing: 1,
     },
@@ -536,21 +535,21 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     suggestionAvatar: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: normalize(40),
+        height: normalize(40),
+        borderRadius: normalize(20),
         backgroundColor: 'rgba(0,0,0,0.05)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
+        marginRight: normalize(12),
     },
     avatarText: {
-        fontSize: 16,
+        fontSize: normalize(16),
         fontWeight: '600',
         color: '#000000',
     },
     suggestionItemText: {
-        fontSize: 16,
+        fontSize: normalize(16),
         color: '#000000',
         fontWeight: '500',
     },
@@ -558,11 +557,11 @@ const styles = StyleSheet.create({
         marginTop: 24,
     },
     tagsTitle: {
-        fontSize: 14,
+        fontSize: normalize(14),
         fontWeight: '600',
         color: '#000000',
         opacity: 0.4,
-        marginBottom: 12,
+        marginBottom: normalize(12),
         textTransform: 'uppercase',
         letterSpacing: 1,
     },
@@ -572,17 +571,17 @@ const styles = StyleSheet.create({
     tagItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
+        paddingHorizontal: normalize(16),
+        paddingVertical: normalize(8),
+        borderRadius: normalize(20),
         backgroundColor: 'rgba(0,0,0,0.05)',
-        gap: 6,
+        gap: normalize(6),
     },
     tagItemActive: {
         backgroundColor: '#000000',
     },
     tagLabel: {
-        fontSize: 14,
+        fontSize: normalize(14),
         fontWeight: '600',
         color: '#000000',
     },
@@ -599,20 +598,20 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     confirmTo: {
-        fontSize: 18,
+        fontSize: normalize(18),
         fontWeight: '600',
         color: '#000000',
         opacity: 0.7,
     },
     confirmTag: {
-        marginLeft: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
+        marginLeft: normalize(8),
+        paddingHorizontal: normalize(8),
+        paddingVertical: normalize(2),
         backgroundColor: '#000000',
-        borderRadius: 8,
+        borderRadius: normalize(8),
     },
     confirmTagText: {
-        fontSize: 12,
+        fontSize: normalize(12),
         fontWeight: '700',
         color: '#ffffff',
     },
@@ -621,13 +620,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         backgroundColor: 'rgba(0,0,0,0.05)',
-        padding: 16,
-        borderRadius: 16,
-        marginTop: 24,
+        padding: normalize(16),
+        borderRadius: normalize(16),
+        marginTop: normalize(24),
         width: '100%',
     },
     currencyToggleText: {
-        fontSize: 15,
+        fontSize: normalize(15),
         fontWeight: '600',
         color: '#000000',
     },
@@ -651,20 +650,20 @@ const styles = StyleSheet.create({
         transform: [{ translateX: 20 }],
     },
     chargesBreakdown: {
-        marginTop: 24,
+        marginTop: normalize(24),
         width: '100%',
         backgroundColor: 'transparent',
-        paddingVertical: 20,
+        paddingVertical: normalize(20),
         borderTopWidth: 1,
         borderTopColor: 'rgba(0,0,0,0.05)',
         paddingHorizontal: 0,
     },
     payingThroughCopy: {
-        fontSize: 12,
+        fontSize: normalize(12),
         fontWeight: '600',
         color: '#000000',
         opacity: 0.4,
-        marginBottom: 16,
+        marginBottom: normalize(16),
         textAlign: 'center',
         textTransform: 'uppercase',
         letterSpacing: 0.5,
@@ -677,7 +676,7 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     chargesTitle: {
-        fontSize: 16,
+        fontSize: normalize(16),
         fontWeight: '600',
         color: '#000000',
     },
@@ -685,10 +684,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#ffffff',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-        gap: 6,
+        paddingHorizontal: normalize(12),
+        paddingVertical: normalize(6),
+        borderRadius: normalize(20),
+        gap: normalize(6),
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
@@ -696,13 +695,13 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     liveDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
+        width: normalize(6),
+        height: normalize(6),
+        borderRadius: normalize(3),
         backgroundColor: '#05b959',
     },
     liveRateText: {
-        fontSize: 13,
+        fontSize: normalize(13),
         fontWeight: '700',
         color: '#000000',
     },
@@ -713,13 +712,13 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     chargeLabel: {
-        fontSize: 14.75,
+        fontSize: normalize(14.75),
         color: '#000000',
         opacity: 0.7,
         fontWeight: '600',
     },
     chargeValue: {
-        fontSize: 14.75,
+        fontSize: normalize(14.75),
         fontWeight: '700',
         color: '#000000',
     },
@@ -729,7 +728,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     fxMarkupOld: {
-        fontSize: 12.75,
+        fontSize: normalize(12.75),
         color: '#000000',
         opacity: 0.5,
         textDecorationLine: 'line-through',
@@ -768,46 +767,46 @@ const styles = StyleSheet.create({
     },
 
     numpad: {
-        marginVertical: 10,
+        justifyContent: 'center',
+        marginVertical: normalize(4),
     },
     numpadRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 20,
+        marginBottom: normalize(8),
     },
     numpadButton: {
-        width: 80,
-        height: 80,
+        width: normalize(80),
+        height: normalize(64),
         justifyContent: 'center',
         alignItems: 'center',
     },
     numpadButtonInner: {
-        width: 68,
-        height: 52,
-        borderRadius: 16,
+        width: normalize(68),
+        height: normalize(52),
+        borderRadius: normalize(16),
         backgroundColor: 'transparent',
         justifyContent: 'center',
         alignItems: 'center',
     },
     numpadText: {
-        fontSize: 28,
+        fontSize: normalize(28),
         fontWeight: '700',
         color: '#000000',
     },
 
     actions: {
-        marginTop: 'auto',
-        marginBottom: 40,
+        marginBottom: normalize(16),
     },
     payButton: {
         backgroundColor: '#000000',
-        height: 56,
-        borderRadius: 28,
+        height: normalize(56),
+        borderRadius: normalize(28),
         justifyContent: 'center',
         alignItems: 'center',
     },
     payButtonText: {
-        fontSize: 16,
+        fontSize: normalize(16),
         fontWeight: '700',
         color: '#ffffff',
     },
