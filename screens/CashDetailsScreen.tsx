@@ -100,7 +100,7 @@ export default function CashDetailsScreen() {
                             onPress={() => navigation.navigate("Fund" as never)}
                         >
                             <Plus size={16} color={colors.card} />
-                            <Text style={[styles.heroBtnText, { color: colors.card }]}>Invest now</Text>
+                            <Text style={[styles.heroBtnText, { color: colors.card }]}>Add money</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.heroBtn, { backgroundColor: colors.background }]}

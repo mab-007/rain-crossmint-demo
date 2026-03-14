@@ -16,6 +16,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { LinearGradient } from "expo-linear-gradient";
 import { ArrowRight, Globe, CreditCard, TrendingUp, Zap } from "lucide-react-native";
+import { GlobalGlobe, PremiumCard, CurrencyFlow, InstantZap } from "../components/LandingVisuals";
 
 const { width, height } = Dimensions.get("window");
 
@@ -25,210 +26,62 @@ const SLIDES = [
     {
         id: 1,
         title: "Banking Built for Global Families",
-        description: "For travelers, entrepreneurs, and global citizens supporting loved ones in the Philippines.",
+        description: "Empowering global citizens with seamless cross-border finance and instant support for loved ones.",
         icon: Globe,
-        image: require("../assets/Global family.png"),
+        Visual: GlobalGlobe,
         color: "#05b959",
     },
     {
         id: 2,
-        title: "Pay Globally with Best Rates",
-        description: "Unparalleled rewards and seamless dual-currency spending with your KinnectFi card.",
+        title: "The Only Card You'll Ever Need",
+        description: "Spend in any currency with real-time conversion and premium rewards on every transaction.",
         icon: CreditCard,
+        Visual: PremiumCard,
         color: "#3b82f6",
     },
     {
         id: 3,
-        title: "Convert at the Real Rate",
-        description: "Same pesos, more digital dollars with an industry-leading 5% annual yield on your savings.",
+        title: "Your Wealth, Growing Faster",
+        description: "Earn industry-leading yields on your savings while maintaining instant liquidity and security.",
         icon: TrendingUp,
-        image: require("../assets/Real rate conversion.png"),
+        Visual: CurrencyFlow,
         color: "#8b5cf6",
     },
     {
         id: 4,
-        title: "Instant Transfers, Zero Friction",
-        description: "Move money at the speed of light. Secure, borderless payments for the modern world.",
+        title: "Money at the Speed of Thought",
+        description: "Instant, borderless transfers with zero friction. The future of global banking is here.",
         icon: Zap,
-        image: require("../assets/Instant transfers.png"),
+        Visual: InstantZap,
         color: "#f59e0b",
     },
 ];
 
-const CardStack = () => {
-    const anim = useRef(new Animated.Value(0)).current;
+const TypewriterText = ({ text, style, delay = 30, onComplete }: { text: string, style: any, delay?: number, onComplete?: () => void }) => {
+    const [displayedText, setDisplayedText] = useState("");
+    const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(anim, {
-                    toValue: 1,
-                    duration: 3000,
-                    easing: Easing.inOut(Easing.sin),
-                    useNativeDriver: true,
-                }),
-                Animated.timing(anim, {
-                    toValue: 0,
-                    duration: 3000,
-                    easing: Easing.inOut(Easing.sin),
-                    useNativeDriver: true,
-                }),
-            ])
-        ).start();
-    }, []);
-
-    const getCardStyle = (index: number) => {
-        const translateY = anim.interpolate({
-            inputRange: [0, 1],
-            outputRange: [index * 20, index * 10],
-        });
-        const rotate = anim.interpolate({
-            inputRange: [0, 1],
-            outputRange: [`${index * -5}deg`, `${index * -12}deg`],
-        });
-        const scale = anim.interpolate({
-            inputRange: [0, 1],
-            outputRange: [1 - index * 0.05, 1 - index * 0.02],
-        });
-
-        return {
-            transform: [{ translateY }, { rotate }, { scale }],
-            zIndex: 10 - index,
-            opacity: 1 - index * 0.2,
-        };
-    };
-
-    return (
-        <View style={styles.cardStackContainer}>
-            <Animated.View style={[styles.card, styles.card3, getCardStyle(2)]}>
-                <LinearGradient colors={["#8b5cf6", "#6d28d9"]} style={styles.cardGradient} />
-            </Animated.View>
-            <Animated.View style={[styles.card, styles.card2, getCardStyle(1)]}>
-                <LinearGradient colors={["#3b82f6", "#1d4ed8"]} style={styles.cardGradient} />
-            </Animated.View>
-            <Animated.View style={[styles.card, styles.card1, getCardStyle(0)]}>
-                <View style={[styles.cardGradient, {
-                    backgroundColor: '#121212',
-                    borderColor: 'rgba(255,255,255,0.15)',
-                    borderWidth: 1,
-                    borderRadius: 20,
-                    overflow: 'hidden'
-                }]}>
-                    {/* Top Section */}
-                    <View style={styles.landingCardSectionTop}>
-                        <LinearGradient
-                            colors={['#1A1A1A', '#252525']}
-                            style={StyleSheet.absoluteFill}
-                        />
-                    </View>
-                    {/* Middle Section: Brushed Metal Band */}
-                    <View style={styles.landingCardSectionMiddle}>
-                        <LinearGradient
-                            colors={['#2A2A2A', '#3A3A3A', '#2A2A2A', '#4A4A4A', '#2A2A2A']}
-                            style={StyleSheet.absoluteFill}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                        />
-                        <View style={styles.landingChip}>
-                            <LinearGradient
-                                colors={['#FFD700', '#E5C100', '#B8860B']}
-                                style={StyleSheet.absoluteFill}
-                            />
-                        </View>
-                    </View>
-                    {/* Bottom Section */}
-                    <View style={styles.landingCardSectionBottom}>
-                        <LinearGradient
-                            colors={['#252525', '#1A1A1A']}
-                            style={StyleSheet.absoluteFill}
-                        />
-                        <Text style={styles.landingCardNumber}>**** **** **** 3190</Text>
-                    </View>
-                    {/* Premium Shine Overlay */}
-                    <LinearGradient
-                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0)']}
-                        style={StyleSheet.absoluteFill}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        pointerEvents="none"
-                    />
-                </View>
-            </Animated.View>
-        </View>
-    );
-};
-
-const CoinStack = () => {
-    const anim = useRef(new Animated.Value(0)).current;
+        setDisplayedText("");
+        setCurrentIndex(0);
+    }, [text]);
 
     useEffect(() => {
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(anim, {
-                    toValue: 1,
-                    duration: 3000,
-                    easing: Easing.inOut(Easing.sin),
-                    useNativeDriver: true,
-                }),
-                Animated.timing(anim, {
-                    toValue: 0,
-                    duration: 3000,
-                    easing: Easing.inOut(Easing.sin),
-                    useNativeDriver: true,
-                }),
-            ])
-        ).start();
-    }, []);
+        if (currentIndex < text.length) {
+            const timeout = setTimeout(() => {
+                setDisplayedText((prev) => prev + text[currentIndex]);
+                setCurrentIndex((prev) => prev + 1);
+            }, delay);
+            return () => clearTimeout(timeout);
+        } else if (onComplete) {
+            onComplete();
+        }
+    }, [currentIndex, text, delay]);
 
-    const COINS = [
-        { symbol: "₱", colors: ["#e5e7eb", "#9ca3af", "#4b5563"], textColor: "#374151" }, // Silver/Piso
-        { symbol: "$", colors: ["#fbbf24", "#d97706", "#92400e"], textColor: "#78350f" }, // Gold/Dollar
-        { symbol: "€", colors: ["#94a3b8", "#475569", "#1e293b"], textColor: "#0f172a" }, // Dark Silver/Euro
-        { symbol: "£", colors: ["#fcd34d", "#f59e0b", "#b45309"], textColor: "#78350f" }, // Bronze/Pound
-    ];
-
-    return (
-        <View style={styles.coinStackContainer}>
-            {COINS.map((coin, index) => {
-                const translateY = anim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [index * 35, index * 25],
-                });
-                const rotateX = anim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ["45deg", "35deg"],
-                });
-                const scale = anim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1 - index * 0.05, 1 - index * 0.03],
-                });
-
-                return (
-                    <Animated.View
-                        key={index}
-                        style={[
-                            styles.realisticCoin,
-                            {
-                                transform: [{ translateY }, { rotateX }, { scale }],
-                                zIndex: 10 - index,
-                            },
-                        ]}
-                    >
-                        <LinearGradient
-                            colors={[coin.colors[0], coin.colors[1], coin.colors[2]] as const}
-                            style={styles.coinFace}
-                        >
-                            <View style={styles.coinInnerRing}>
-                                <Text style={[styles.coinSymbol, { color: coin.textColor }]}>{coin.symbol}</Text>
-                            </View>
-                        </LinearGradient>
-                        <View style={[styles.coinEdge, { backgroundColor: coin.colors[2] }]} />
-                    </Animated.View>
-                );
-            })}
-        </View>
-    );
+    return <Text style={style}>{displayedText}</Text>;
 };
+
+
 
 export default function LandingScreen() {
     const navigation = useNavigation<NavigationProp>();
@@ -236,22 +89,23 @@ export default function LandingScreen() {
     const fadeAnim = useRef(new Animated.Value(1)).current;
     const progressAnim = useRef(new Animated.Value(0)).current;
 
-    useEffect(() => {
-        const interval = setInterval(() => {
+    const nextSlide = () => {
+        Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 400,
+            useNativeDriver: true,
+        }).start(() => {
+            setActiveSlide((prev) => (prev + 1) % SLIDES.length);
             Animated.timing(fadeAnim, {
-                toValue: 0,
-                duration: 500,
+                toValue: 1,
+                duration: 400,
                 useNativeDriver: true,
-            }).start(() => {
-                setActiveSlide((prev) => (prev + 1) % SLIDES.length);
-                Animated.timing(fadeAnim, {
-                    toValue: 1,
-                    duration: 500,
-                    useNativeDriver: true,
-                }).start();
-            });
-        }, 5000);
+            }).start();
+        });
+    };
 
+    useEffect(() => {
+        const interval = setInterval(nextSlide, 6000);
         return () => clearInterval(interval);
     }, []);
 
@@ -259,7 +113,7 @@ export default function LandingScreen() {
         progressAnim.setValue(0);
         Animated.timing(progressAnim, {
             toValue: 1,
-            duration: 5000,
+            duration: 6000,
             easing: Easing.linear,
             useNativeDriver: false,
         }).start();
@@ -278,28 +132,12 @@ export default function LandingScreen() {
     });
 
     const renderVisual = () => {
-        if (currentSlide.image) {
-            return (
-                <Image
-                    source={currentSlide.image}
-                    style={styles.slideImage}
-                    resizeMode="contain"
-                />
-            );
-        }
-
-        switch (activeSlide) {
-            case 1:
-                return <CardStack />;
-            case 2:
-                return <CoinStack />;
-            default:
-                return (
-                    <View style={[styles.iconContainer, { backgroundColor: currentSlide.color + "22" }]}>
-                        <Icon size={40} color={currentSlide.color} />
-                    </View>
-                );
-        }
+        const Visual = currentSlide.Visual;
+        return (
+            <View style={styles.imageContainer}>
+                <Visual />
+            </View>
+        );
     };
 
     return (
@@ -321,16 +159,28 @@ export default function LandingScreen() {
                     </View>
 
                     {/* Carousel Section */}
-                    <View style={styles.carouselContainer}>
+                    <TouchableOpacity
+                        style={styles.carouselContainer}
+                        activeOpacity={1}
+                        onPress={nextSlide}
+                    >
                         <Animated.View style={[styles.visualWrapper, { opacity: fadeAnim }]}>
                             {renderVisual()}
                         </Animated.View>
 
                         <Animated.View style={[styles.textContainer, { opacity: fadeAnim }]}>
-                            <Text style={styles.headline}>{currentSlide.title}</Text>
-                            <Text style={styles.subheadline}>{currentSlide.description}</Text>
+                            <TypewriterText
+                                text={currentSlide.title}
+                                style={styles.headline}
+                                delay={40}
+                            />
+                            <TypewriterText
+                                text={currentSlide.description}
+                                style={styles.subheadline}
+                                delay={20}
+                            />
                         </Animated.View>
-                    </View>
+                    </TouchableOpacity>
 
                     {/* Bottom Action */}
                     <View style={styles.footer}>
@@ -498,157 +348,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: "500",
     },
-    // Card Stack Styles
-    cardStackContainer: {
-        width: 280,
-        height: 180,
+    imageContainer: {
+        width: width * 0.85,
+        height: 280,
         justifyContent: "center",
         alignItems: "center",
-    },
-    card: {
-        position: "absolute",
-        width: 260,
-        height: 160,
-        borderRadius: 20,
-        overflow: "hidden",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.5,
-        shadowRadius: 15,
-        elevation: 10,
-    },
-    cardGradient: {
-        flex: 1,
-        padding: 20,
-    },
-    cardContent: {
-        flex: 1,
-        justifyContent: "space-between",
-    },
-    cardChip: {
-        width: 40,
-        height: 30,
-        backgroundColor: "rgba(255,255,255,0.3)",
-        borderRadius: 6,
-    },
-    cardNumber: {
-        color: "#fff",
-        fontSize: 18,
-        fontWeight: "700",
-        letterSpacing: 2,
-    },
-    cardBottom: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "flex-end",
-    },
-    cardHolder: {
-        color: "#fff",
-        fontSize: 12,
-        fontWeight: "600",
-        opacity: 0.8,
-    },
-    cardExp: {
-        color: "#fff",
-        fontSize: 12,
-        fontWeight: "600",
-        opacity: 0.8,
-    },
-    card1: {},
-    card2: {},
-    card3: {},
-    landingCardSectionTop: {
-        height: '30%',
-        width: '100%',
-        borderBottomWidth: 0.5,
-        borderBottomColor: 'rgba(255,255,255,0.1)',
-    },
-    landingCardSectionMiddle: {
-        height: '40%',
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'flex-end',
-        paddingHorizontal: 16,
-    },
-    landingCardSectionBottom: {
-        height: '30%',
-        width: '100%',
-        justifyContent: 'center',
-        paddingHorizontal: 16,
-        borderTopWidth: 0.5,
-        borderTopColor: 'rgba(255,255,255,0.1)',
-    },
-    landingChip: {
-        width: 36,
-        height: 26,
-        borderRadius: 4,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.1)',
-    },
-    landingCardNumber: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '700',
-        letterSpacing: 1,
-    },
-    // Realistic Coin Stack Styles
-    coinStackContainer: {
-        width: 200,
-        height: 240,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    realisticCoin: {
-        position: "absolute",
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    coinFace: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        borderWidth: 2,
-        borderColor: "rgba(255,255,255,0.3)",
-        justifyContent: "center",
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-    },
-    coinInnerRing: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        borderWidth: 1,
-        borderColor: "rgba(0,0,0,0.1)",
-        borderStyle: "dashed",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(255,255,255,0.05)",
-    },
-    coinSymbol: {
-        fontSize: 48,
-        fontWeight: "900",
-        textShadowColor: "rgba(255,255,255,0.5)",
-        textShadowOffset: { width: 1, height: 1 },
-        textShadowRadius: 1,
-    },
-    coinEdge: {
-        position: "absolute",
-        bottom: -4,
-        width: 120,
-        height: 8,
-        borderRadius: 4,
-        zIndex: -1,
-        opacity: 0.8,
-    },
-    slideImage: {
-        width: width * 0.8,
-        height: 240,
     },
 });

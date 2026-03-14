@@ -17,7 +17,8 @@ import { useCrossmintAuth, useWallet } from "@crossmint/client-sdk-react-native-
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
-import Svg, { Path, Defs, LinearGradient, Stop } from "react-native-svg";
+import Svg, { Path, Defs, LinearGradient as SvgLinearGradient, Stop } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
 import {
     ChevronRight,
     Wallet,
@@ -33,6 +34,7 @@ type NavProp = StackNavigationProp<RootStackParamList, "Main">;
 
 export default function HomeScreen() {
     const { user, logout } = useCrossmintAuth();
+    const initial = user?.email?.[0]?.toUpperCase() ?? "?";
     const { wallet, status } = useWallet();
     const navigation = useNavigation<NavProp>();
     const { theme, colors } = useTheme();
@@ -128,12 +130,18 @@ export default function HomeScreen() {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Fixed Top Section */}
-            <View style={[styles.fixedHeader, { backgroundColor: colors.background }]}>
+            <ScrollView
+                style={styles.scroll}
+                contentContainerStyle={styles.scrollContent}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+                }
+            >
+                {/* Header Section */}
                 <View style={styles.header}>
                     <Text style={[styles.headerTitle, { color: colors.text }]}>Money</Text>
-                    <TouchableOpacity onPress={handleProfilePress} style={styles.profileBtn}>
-                        <RNImage source={require('../assets/icon.png')} style={styles.avatarImage} />
+                    <TouchableOpacity onPress={handleProfilePress} style={[styles.profileBtn, { backgroundColor: colors.primary }]}>
+                        <Text style={styles.avatarTextSmall}>{initial}</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -157,8 +165,8 @@ export default function HomeScreen() {
                                     <TrendingUp size={20} color={colors.primary} />
                                 </View>
                                 <View>
-                                    <Text style={[styles.cardLabelLarge, { color: colors.text }]}>Net worth</Text>
-                                    <Text style={[styles.cardSubtitle, { color: colors.subtext }]}>Total balance in USD</Text>
+                                    <Text style={[styles.cardLabelLarge, { color: colors.text }]}>Total savings</Text>
+                                    <Text style={[styles.cardSubtitle, { color: colors.subtext }]}>Total balance in USD/PHP</Text>
                                 </View>
                             </View>
                             <View style={styles.balanceContainer}>
@@ -180,19 +188,9 @@ export default function HomeScreen() {
                         style={[styles.addMoneyBtn, { backgroundColor: colors.text }]}
                         onPress={() => navigation.navigate("Fund")}
                     >
-                        <Text style={[styles.addMoneyBtnText, { color: colors.card }]}>Invest now</Text>
+                        <Text style={[styles.addMoneyBtnText, { color: colors.card }]}>Add money</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
-
-            {/* Scrollable Content */}
-            <ScrollView
-                style={styles.scroll}
-                contentContainerStyle={styles.scrollContent}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
-                }
-            >
                 {/* Exchange Card */}
                 <TouchableOpacity
                     style={[styles.exchangeCard, { backgroundColor: colors.card, shadowColor: colors.text }]}
@@ -235,10 +233,10 @@ export default function HomeScreen() {
                     <View style={styles.miniGraphContainer}>
                         <Svg height="100" width="100%">
                             <Defs>
-                                <LinearGradient id="miniGrad" x1="0" y1="0" x2="0" y2="1">
+                                <SvgLinearGradient id="miniGrad" x1="0" y1="0" x2="0" y2="1">
                                     <Stop offset="0" stopColor="#05b959" stopOpacity="0.2" />
                                     <Stop offset="1" stopColor="#05b959" stopOpacity="0" />
-                                </LinearGradient>
+                                </SvgLinearGradient>
                             </Defs>
                             <Path
                                 d="M0 80 C20 80, 40 40, 60 60 C80 80, 100 20, 120 40 C140 60, 160 10, 180 30 C200 50, 220 10, 240 20 C260 30, 280 10, 300 15"
@@ -268,11 +266,6 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    fixedHeader: {
-        paddingHorizontal: 24,
-        paddingTop: 0,
-        zIndex: 10,
-    },
     scroll: { flex: 1 },
     scrollContent: {
         paddingHorizontal: 24,
@@ -296,12 +289,18 @@ const styles = StyleSheet.create({
         height: 44,
         borderRadius: 22,
         overflow: 'hidden',
-        backgroundColor: '#e2e2e2',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     avatarImage: {
         width: '100%',
         height: '100%',
         resizeMode: 'cover',
+    },
+    avatarTextSmall: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#fff',
     },
 
     // Cash Balance Card

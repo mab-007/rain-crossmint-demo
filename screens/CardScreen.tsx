@@ -3,14 +3,17 @@ import { View, Text, StyleSheet, SafeAreaView, Image, Dimensions, TouchableOpaci
 import { LinearGradient } from "expo-linear-gradient";
 import { useCrossmintAuth } from "@crossmint/client-sdk-react-native-ui";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/AppNavigator";
 import { useTheme } from "../context/ThemeContext";
 
 const { width, height } = Dimensions.get("window");
 
 export default function CardScreen() {
-    const { user } = useCrossmintAuth();
-    const navigation = useNavigation<any>();
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const { theme, colors } = useTheme();
+    const { user } = useCrossmintAuth();
+    const initial = user?.email?.[0]?.toUpperCase() ?? "?";
 
     // Animation values using built-in RN Animated
     const rotationY = useRef(new Animated.Value(0)).current;
@@ -90,8 +93,8 @@ export default function CardScreen() {
                 {/* Header */}
                 <View style={styles.header}>
                     <Text style={[styles.headerTitle, { color: colors.text }]}>Card</Text>
-                    <TouchableOpacity onPress={handleProfilePress} style={styles.profileBtn}>
-                        <Image source={require('../assets/icon.png')} style={styles.avatarImage} />
+                    <TouchableOpacity onPress={handleProfilePress} style={[styles.profileBtn, { backgroundColor: colors.primary }]}>
+                        <Text style={styles.avatarTextSmall}>{initial}</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -117,29 +120,52 @@ export default function CardScreen() {
                         ]}
                     >
                         <View style={[styles.cardContainer, {
-                            backgroundColor: theme === 'light' ? '#FFFFFF' : '#121212',
-                            borderColor: theme === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)',
+                            backgroundColor: theme === 'light' ? '#E8E8E8' : '#1A1A1A',
+                            borderColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)',
                             borderWidth: 1
                         }]}>
-                            {/* Top Section */}
-                            <View style={[styles.cardSectionTop, { borderBottomColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
-                                <LinearGradient
-                                    colors={theme === 'light' ? ['#F9F9F9', '#FFFFFF'] : ['#1A1A1A', '#252525']}
-                                    style={StyleSheet.absoluteFill}
-                                />
+                            {/* Silver to Gold Story Gradient */}
+                            <LinearGradient
+                                colors={theme === 'light'
+                                    ? ['#D8D8D8', '#F5F5F5', '#E8E8E8', '#FFD700', '#DAA520', '#B8860B']
+                                    : ['#2A2A2A', '#4A4A4A', '#1A1A1A', '#8B6B00', '#554400', '#332200']}
+                                style={StyleSheet.absoluteFill}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                            />
+
+                            {/* Story Elements: PHP to USD */}
+                            <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                                <Text style={[styles.storySymbol, { left: '10%', top: '20%', opacity: 0.05, transform: [{ rotate: '-15deg' }] }]}>₱</Text>
+                                <Text style={[styles.storySymbol, { left: '25%', top: '60%', opacity: 0.03, transform: [{ rotate: '10deg' }] }]}>₱</Text>
+                                <Text style={[styles.storySymbol, { right: '25%', top: '15%', opacity: 0.03, transform: [{ rotate: '-10deg' }] }]}>$</Text>
+                                <Text style={[styles.storySymbol, { right: '10%', top: '55%', opacity: 0.05, transform: [{ rotate: '15deg' }] }]}>$</Text>
+                            </View>
+
+                            {/* Artistic Flow Shine Overlays */}
+                            <LinearGradient
+                                colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0)']}
+                                style={[styles.artisticShine, { top: '-20%', left: '-10%', width: '120%', height: '40%', transform: [{ rotate: '-25deg' }] }]}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                pointerEvents="none"
+                            />
+                            <LinearGradient
+                                colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.2)', 'rgba(255,255,255,0)']}
+                                style={[styles.artisticShine, { bottom: '-10%', right: '-20%', width: '100%', height: '30%', transform: [{ rotate: '15deg' }] }]}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                pointerEvents="none"
+                            />
+
+                            {/* Branding & Logo */}
+                            <View style={styles.pureCardHeader}>
+                                <Text style={[styles.brandText, { color: theme === 'light' ? '#000000' : '#FFFFFF' }]}>KinnectFi</Text>
                                 <View style={[styles.minimalistLogo, { backgroundColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]} />
                             </View>
 
-                            {/* Middle Section: Brushed Metal Band */}
-                            <View style={styles.cardSectionMiddle}>
-                                <LinearGradient
-                                    colors={theme === 'light'
-                                        ? ['#F0F0F0', '#E0E0E0', '#F0F0F0', '#D0D0D0', '#F0F0F0']
-                                        : ['#2A2A2A', '#3A3A3A', '#2A2A2A', '#4A4A4A', '#2A2A2A']}
-                                    style={StyleSheet.absoluteFill}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 0 }}
-                                />
+                            {/* Chip */}
+                            <View style={styles.pureCardMiddle}>
                                 <View style={styles.chip}>
                                     <LinearGradient
                                         colors={['#FFD700', '#E5C100', '#B8860B']}
@@ -154,20 +180,8 @@ export default function CardScreen() {
                                 </View>
                             </View>
 
-                            {/* Bottom Section */}
-                            <View style={[styles.cardSectionBottom, { borderTopColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
-                                <LinearGradient
-                                    colors={theme === 'light' ? ['#FFFFFF', '#F9F9F9'] : ['#252525', '#1A1A1A']}
-                                    style={StyleSheet.absoluteFill}
-                                />
-                                <Text style={[styles.cardHolderName, {
-                                    color: theme === 'light' ? '#333' : '#E0E0E0',
-                                    textShadowColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
-                                    textShadowOffset: { width: 0, height: 1 },
-                                    textShadowRadius: 1
-                                }]}>
-                                    INAAYA CHANDRA
-                                </Text>
+                            {/* Bottom Elements */}
+                            <View style={styles.pureCardBottom}>
                                 <View style={styles.graphicElement}>
                                     <LinearGradient
                                         colors={['#EB001B', '#F79E1B']}
@@ -185,9 +199,9 @@ export default function CardScreen() {
                                 </View>
                             </View>
 
-                            {/* Premium Shine Overlay */}
+                            {/* Premium Shine Overlays */}
                             <LinearGradient
-                                colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0)']}
+                                colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.4)', 'rgba(255,255,255,0)']}
                                 style={styles.premiumShine}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 1 }}
@@ -237,12 +251,18 @@ const styles = StyleSheet.create({
         height: 40,
         borderRadius: 20,
         overflow: 'hidden',
-        backgroundColor: 'rgba(0,0,0,0.05)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     avatarImage: {
         width: '100%',
         height: '100%',
         resizeMode: 'cover',
+    },
+    avatarTextSmall: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#fff',
     },
     titleContainer: {
         marginTop: 20,
@@ -253,6 +273,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         lineHeight: 36,
         letterSpacing: -1,
+        width: '70%',
     },
     cardWrapper: {
         flex: 1,
@@ -312,33 +333,28 @@ const styles = StyleSheet.create({
         width: 1,
         backgroundColor: 'rgba(0,0,0,0.2)',
     },
-    cardSectionTop: {
-        height: '30%',
+    pureCardHeader: {
+        height: '25%',
         width: '100%',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 24,
-        borderBottomWidth: 0.5,
-        overflow: 'hidden',
     },
-    cardSectionMiddle: {
-        height: '40%',
+    pureCardMiddle: {
+        height: '50%',
         width: '100%',
         justifyContent: 'center',
         alignItems: 'flex-end',
         paddingHorizontal: 24,
-        overflow: 'hidden',
     },
-    cardSectionBottom: {
-        height: '30%',
+    pureCardBottom: {
+        height: '25%',
         width: '100%',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 24,
-        borderTopWidth: 0.5,
-        overflow: 'hidden',
     },
     minimalistLogo: {
         width: 24,
@@ -386,5 +402,21 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: '600',
+    },
+    brandText: {
+        fontSize: 18,
+        fontWeight: '800',
+        letterSpacing: -0.5,
+        opacity: 0.9,
+    },
+    storySymbol: {
+        position: 'absolute',
+        fontSize: 60,
+        fontWeight: '900',
+        color: '#fff',
+    },
+    artisticShine: {
+        position: 'absolute',
+        zIndex: 5,
     },
 });

@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useWallet } from "@crossmint/client-sdk-react-native-ui";
 import { useNavigation } from "@react-navigation/native";
-import { Delete, CheckCircle2, ChevronLeft } from "lucide-react-native";
+import { Delete, CheckCircle2, ChevronLeft, AlertCircle } from "lucide-react-native";
 import { useTheme } from "../context/ThemeContext";
 
 const { width, height } = Dimensions.get("window");
@@ -24,6 +24,25 @@ export default function FundScreen() {
     const [selectedWallet, setSelectedWallet] = useState<"USD" | "PHP">("USD");
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [errorMsg, setErrorMsg] = useState("");
+    const [toastVisible, setToastVisible] = useState(false);
+    const [toastOpacity] = useState(new Animated.Value(0));
+
+    const showToast = () => {
+        setToastVisible(true);
+        Animated.sequence([
+            Animated.timing(toastOpacity, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+            Animated.delay(2000),
+            Animated.timing(toastOpacity, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+        ]).start(() => setToastVisible(false));
+    };
 
     const handleNumberPress = (num: string) => {
         if (amount === "0" && num !== ".") {
@@ -48,6 +67,11 @@ export default function FundScreen() {
 
         const num = parseFloat(amount);
         if (isNaN(num) || num <= 0) return;
+
+        if (num > 100) {
+            showToast();
+            return;
+        }
 
         setStatus("loading");
         try {
@@ -125,7 +149,7 @@ export default function FundScreen() {
     if (status === "error") {
         return (
             <View style={[styles.centered, { backgroundColor: colors.background }]}>
-                <X size={80} color={colors.danger} />
+                <AlertCircle size={80} color={colors.danger} />
                 <Text style={[styles.statusText, { color: colors.text }]}>Funding Failed</Text>
                 <Text style={[styles.subStatusText, { color: colors.subtext }]}>{errorMsg}</Text>
                 <TouchableOpacity style={[styles.retryBtn, { backgroundColor: colors.text }]} onPress={() => setStatus("idle")}>
@@ -141,7 +165,7 @@ export default function FundScreen() {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.closeBtn, { backgroundColor: colors.card }]}>
                     <ChevronLeft size={24} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: colors.text }]}>Invest now</Text>
+                <Text style={[styles.headerTitle, { color: colors.text }]}>Add money</Text>
             </View>
 
             <View style={styles.content}>
@@ -226,6 +250,19 @@ export default function FundScreen() {
                     <Text style={[styles.fundBtnText, { color: colors.card }]}>Add money</Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Custom Toast */}
+            {toastVisible && (
+                <Animated.View style={[
+                    styles.toastContainer,
+                    { opacity: toastOpacity, backgroundColor: colors.text }
+                ]}>
+                    <AlertCircle size={18} color={colors.card} />
+                    <Text style={[styles.toastText, { color: colors.card }]}>
+                        above 100 is not allowed
+                    </Text>
+                </Animated.View>
+            )}
         </SafeAreaView>
     );
 }
@@ -375,5 +412,27 @@ const styles = StyleSheet.create({
     retryBtnText: {
         color: '#fff',
         fontWeight: '700',
+    },
+    toastContainer: {
+        position: 'absolute',
+        bottom: 120,
+        left: 24,
+        right: 24,
+        height: 50,
+        borderRadius: 25,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingHorizontal: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 10,
+    },
+    toastText: {
+        fontSize: 14,
+        fontWeight: '600',
     },
 });

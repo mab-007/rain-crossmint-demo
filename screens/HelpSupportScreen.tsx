@@ -21,7 +21,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 const faqs = [
     {
         question: "How do I fund my wallet?",
-        answer: "You can fund your wallet by clicking the 'Invest now' button on the Cash Details screen. You can choose between USD and PHP wallets to add funds.",
+        answer: "You can fund your wallet by clicking the 'Add money' button on the Cash Details screen. You can choose between USD and PHP wallets to add funds.",
     },
     {
         question: "What is the exchange rate?",

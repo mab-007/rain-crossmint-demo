@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
     View,
     Text,
@@ -12,13 +12,14 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
+    Animated,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useTheme } from "../context/ThemeContext";
 import { LinearGradient } from "expo-linear-gradient";
-import { ArrowRight, X, Send, ArrowDownLeft, PieChart, Grid, Check, ChevronLeft, Settings, Plus, Apple } from "lucide-react-native";
+import { ArrowRight, X, Send, ArrowDownLeft, PieChart, Grid, Check, ChevronLeft, Settings, Plus, Apple, Eye, EyeOff } from "lucide-react-native";
 
 const { width, height } = Dimensions.get("window");
 
@@ -29,6 +30,41 @@ export default function ExploreScreen() {
     const { theme, colors } = useTheme();
     const [step, setStep] = useState<Step>("hero");
     const [cardName, setCardName] = useState("");
+    const [isFlipped, setIsFlipped] = useState(false);
+
+    // Animation for card flip
+    const flipAnim = useRef(new Animated.Value(0)).current;
+
+    const toggleFlip = () => {
+        const toValue = isFlipped ? 0 : 1;
+        Animated.spring(flipAnim, {
+            toValue,
+            friction: 8,
+            tension: 10,
+            useNativeDriver: true,
+        }).start();
+        setIsFlipped(!isFlipped);
+    };
+
+    const frontInterpolate = flipAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '180deg'],
+    });
+
+    const backInterpolate = flipAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['180deg', '360deg'],
+    });
+
+    const frontOpacity = flipAnim.interpolate({
+        inputRange: [0, 0.5, 0.5, 1],
+        outputRange: [1, 1, 0, 0],
+    });
+
+    const backOpacity = flipAnim.interpolate({
+        inputRange: [0, 0.5, 0.5, 1],
+        outputRange: [0, 0, 1, 1],
+    });
 
     const renderHero = () => (
         <View style={styles.content}>
@@ -42,27 +78,44 @@ export default function ExploreScreen() {
             {/* Full Page Card Visual - Centered and Clean */}
             <View style={styles.cardWrapper}>
                 <View style={[styles.cardContainer, {
-                    backgroundColor: theme === 'light' ? '#FFFFFF' : '#121212',
-                    borderColor: theme === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)',
+                    backgroundColor: theme === 'light' ? '#E8E8E8' : '#1A1A1A',
+                    borderColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)',
                     borderWidth: 1
                 }]}>
-                    {/* Top Section */}
-                    <View style={[styles.cardSectionTop, { height: '30%', borderBottomWidth: 0.5, borderBottomColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
-                        <LinearGradient
-                            colors={theme === 'light' ? ['#F9F9F9', '#FFFFFF'] : ['#1A1A1A', '#252525']}
-                            style={StyleSheet.absoluteFill}
-                        />
+                    {/* Silver to Gold Story Gradient */}
+                    <LinearGradient
+                        colors={theme === 'light'
+                            ? ['#D8D8D8', '#F5F5F5', '#E8E8E8', '#FFD700', '#DAA520', '#B8860B']
+                            : ['#2A2A2A', '#4A4A4A', '#1A1A1A', '#8B6B00', '#554400', '#332200']}
+                        style={StyleSheet.absoluteFill}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                    />
+
+                    {/* Story Elements: PHP to USD */}
+                    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                        <Text style={[styles.storySymbol, { left: '10%', top: '20%', opacity: 0.05, transform: [{ rotate: '-15deg' }] }]}>₱</Text>
+                        <Text style={[styles.storySymbol, { left: '25%', top: '60%', opacity: 0.03, transform: [{ rotate: '10deg' }] }]}>₱</Text>
+                        <Text style={[styles.storySymbol, { right: '25%', top: '15%', opacity: 0.03, transform: [{ rotate: '-10deg' }] }]}>$</Text>
+                        <Text style={[styles.storySymbol, { right: '10%', top: '55%', opacity: 0.05, transform: [{ rotate: '15deg' }] }]}>$</Text>
                     </View>
-                    {/* Middle Section: Brushed Metal Band */}
-                    <View style={[styles.cardSectionMiddle, { height: '40%' }]}>
-                        <LinearGradient
-                            colors={theme === 'light'
-                                ? ['#F0F0F0', '#E0E0E0', '#F0F0F0', '#D0D0D0', '#F0F0F0']
-                                : ['#2A2A2A', '#3A3A3A', '#2A2A2A', '#4A4A4A', '#2A2A2A']}
-                            style={StyleSheet.absoluteFill}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                        />
+
+                    {/* Artistic Flow Shine Overlays */}
+                    <LinearGradient
+                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0)']}
+                        style={[styles.artisticShine, { top: '-20%', left: '-10%', width: '120%', height: '40%', transform: [{ rotate: '-25deg' }] }]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        pointerEvents="none"
+                    />
+
+                    {/* Branding & Logo */}
+                    <View style={styles.pureCardHeader}>
+                        <Text style={[styles.brandText, { color: theme === 'light' ? '#000000' : '#FFFFFF' }]}>KinnectFi</Text>
+                    </View>
+
+                    {/* Chip */}
+                    <View style={styles.pureCardMiddle}>
                         <View style={styles.chip}>
                             <LinearGradient
                                 colors={['#FFD700', '#E5C100', '#B8860B']}
@@ -76,16 +129,10 @@ export default function ExploreScreen() {
                             </View>
                         </View>
                     </View>
-                    {/* Bottom Section */}
-                    <View style={[styles.cardSectionBottom, { height: '30%', borderTopWidth: 0.5, borderTopColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
-                        <LinearGradient
-                            colors={theme === 'light' ? ['#FFFFFF', '#F9F9F9'] : ['#252525', '#1A1A1A']}
-                            style={StyleSheet.absoluteFill}
-                        />
-                    </View>
-                    {/* Premium Shine Overlay */}
+
+                    {/* Premium Shine Overlays */}
                     <LinearGradient
-                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0)']}
+                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.4)', 'rgba(255,255,255,0)']}
                         style={styles.premiumShine}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
@@ -116,27 +163,44 @@ export default function ExploreScreen() {
 
             <View style={styles.verticalCardWrapper}>
                 <View style={[styles.verticalCard, {
-                    backgroundColor: theme === 'light' ? '#FFFFFF' : '#121212',
-                    borderColor: theme === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)',
+                    backgroundColor: theme === 'light' ? '#E8E8E8' : '#1A1A1A',
+                    borderColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)',
                     borderWidth: 1
                 }]}>
-                    {/* Top Section */}
-                    <View style={[styles.cardSectionTop, { height: '30%', borderBottomWidth: 0.5, borderBottomColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
-                        <LinearGradient
-                            colors={theme === 'light' ? ['#F9F9F9', '#FFFFFF'] : ['#1A1A1A', '#252525']}
-                            style={StyleSheet.absoluteFill}
-                        />
+                    {/* Silver to Gold Story Gradient */}
+                    <LinearGradient
+                        colors={theme === 'light'
+                            ? ['#D8D8D8', '#F5F5F5', '#E8E8E8', '#FFD700', '#DAA520', '#B8860B']
+                            : ['#2A2A2A', '#4A4A4A', '#1A1A1A', '#8B6B00', '#554400', '#332200']}
+                        style={StyleSheet.absoluteFill}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                    />
+
+                    {/* Story Elements: PHP to USD */}
+                    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                        <Text style={[styles.storySymbol, { left: '10%', top: '20%', opacity: 0.05, transform: [{ rotate: '-15deg' }] }]}>₱</Text>
+                        <Text style={[styles.storySymbol, { left: '25%', top: '60%', opacity: 0.03, transform: [{ rotate: '10deg' }] }]}>₱</Text>
+                        <Text style={[styles.storySymbol, { right: '25%', top: '15%', opacity: 0.03, transform: [{ rotate: '-10deg' }] }]}>$</Text>
+                        <Text style={[styles.storySymbol, { right: '10%', top: '55%', opacity: 0.05, transform: [{ rotate: '15deg' }] }]}>$</Text>
                     </View>
-                    {/* Middle Section: Brushed Metal Band */}
-                    <View style={[styles.cardSectionMiddle, { height: '40%' }]}>
-                        <LinearGradient
-                            colors={theme === 'light'
-                                ? ['#F0F0F0', '#E0E0E0', '#F0F0F0', '#D0D0D0', '#F0F0F0']
-                                : ['#2A2A2A', '#3A3A3A', '#2A2A2A', '#4A4A4A', '#2A2A2A']}
-                            style={StyleSheet.absoluteFill}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                        />
+
+                    {/* Artistic Flow Shine Overlays */}
+                    <LinearGradient
+                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0)']}
+                        style={[styles.artisticShine, { top: '-20%', left: '-10%', width: '120%', height: '40%', transform: [{ rotate: '-25deg' }] }]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        pointerEvents="none"
+                    />
+
+                    {/* Branding & Logo */}
+                    <View style={styles.pureCardHeader}>
+                        <Text style={[styles.brandText, { color: theme === 'light' ? '#000000' : '#FFFFFF' }]}>KinnectFi</Text>
+                    </View>
+
+                    {/* Chip */}
+                    <View style={styles.pureCardMiddle}>
                         <View style={styles.chip}>
                             <LinearGradient
                                 colors={['#FFD700', '#E5C100', '#B8860B']}
@@ -150,12 +214,9 @@ export default function ExploreScreen() {
                             </View>
                         </View>
                     </View>
+
                     {/* Bottom Section */}
-                    <View style={[styles.cardSectionBottom, { height: '30%', borderTopWidth: 0.5, borderTopColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
-                        <LinearGradient
-                            colors={theme === 'light' ? ['#FFFFFF', '#F9F9F9'] : ['#252525', '#1A1A1A']}
-                            style={StyleSheet.absoluteFill}
-                        />
+                    <View style={styles.pureCardBottom}>
                         <Text style={[styles.engravedName, {
                             color: theme === 'light' ? '#333' : '#E0E0E0',
                             textShadowColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
@@ -165,9 +226,10 @@ export default function ExploreScreen() {
                             {cardName.toUpperCase() || "YOUR NAME"}
                         </Text>
                     </View>
-                    {/* Premium Shine Overlay */}
+
+                    {/* Premium Shine Overlays */}
                     <LinearGradient
-                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0)']}
+                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.4)', 'rgba(255,255,255,0)']}
                         style={styles.premiumShine}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
@@ -209,131 +271,154 @@ export default function ExploreScreen() {
                 <Text style={[styles.settledTitle, { color: colors.text }]}>Card Management</Text>
             </View>
 
-            <View style={styles.stackedCardContainer}>
-                {/* Add New Card Slot */}
-                <TouchableOpacity
-                    style={[styles.addCardSlot, { backgroundColor: theme === 'light' ? '#f0f0f0' : '#222', borderColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)' }]}
-                    onPress={() => setStep("hero")}
-                >
-                    <Text style={[styles.addCardText, { color: colors.text }]}>Add new card</Text>
-                    <View style={[styles.addCardIconCircle, { backgroundColor: colors.text }]}>
-                        <Plus size={16} color={colors.background} />
-                    </View>
-                </TouchableOpacity>
-
-                {/* Stacked Background Card (Visual Only) */}
-                <View style={[styles.backgroundCard, { top: 40, zIndex: 1, backgroundColor: '#1A1A1A' }]}>
-                    <View style={styles.backgroundCardHeader}>
-                        <View style={styles.mastercardLogoSmall}>
-                            <View style={[styles.logoCircleSmall, { backgroundColor: '#EB001B', opacity: 0.8 }]} />
-                            <View style={[styles.logoCircleSmall, { backgroundColor: '#F79E1B', opacity: 0.8, marginLeft: -6 }]} />
-                        </View>
-                        <Text style={styles.backgroundCardNumber}>•••• •••• 3507</Text>
-                    </View>
-                </View>
-
-                {/* Main Active Card - 3 Section Design */}
-                <View style={[styles.mainCard, {
-                    top: 80,
-                    zIndex: 2,
-                    backgroundColor: theme === 'light' ? '#FFFFFF' : '#121212',
-                    borderColor: theme === 'light' ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)'
-                }]}>
-                    {/* Top Section: Clean Minimalist Matte */}
-                    <View style={[styles.cardSectionTop, { borderBottomColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
-                        <LinearGradient
-                            colors={theme === 'light' ? ['#F9F9F9', '#FFFFFF'] : ['#1A1A1A', '#252525']}
-                            style={StyleSheet.absoluteFill}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 0, y: 1 }}
-                        />
-                        <View style={[styles.minimalistLogo, { backgroundColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]} />
-                    </View>
-
-                    {/* Middle Section: Brushed Metal Band */}
-                    <View style={styles.cardSectionMiddle}>
+            <View style={styles.singleCardWrapper}>
+                <Animated.View style={[styles.flipCard, { transform: [{ rotateY: frontInterpolate }], opacity: frontOpacity }]}>
+                    <View style={[styles.mainCard, {
+                        backgroundColor: theme === 'light' ? '#E8E8E8' : '#1A1A1A',
+                        borderColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'
+                    }]}>
+                        {/* Silver to Gold Story Gradient */}
                         <LinearGradient
                             colors={theme === 'light'
-                                ? ['#F0F0F0', '#E0E0E0', '#F0F0F0', '#D0D0D0', '#F0F0F0']
-                                : ['#2A2A2A', '#3A3A3A', '#2A2A2A', '#4A4A4A', '#2A2A2A']}
+                                ? ['#D8D8D8', '#F5F5F5', '#E8E8E8', '#FFD700', '#DAA520', '#B8860B']
+                                : ['#2A2A2A', '#4A4A4A', '#1A1A1A', '#8B6B00', '#554400', '#332200']}
                             style={StyleSheet.absoluteFill}
                             start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
+                            end={{ x: 1, y: 1 }}
                         />
-                        <View style={styles.chip}>
-                            <LinearGradient
-                                colors={['#FFD700', '#E5C100', '#B8860B']}
-                                style={styles.chipInnerGradient}
-                            />
-                            <View style={styles.chipInner}>
-                                <View style={styles.chipLine} />
-                                <View style={styles.chipLine} />
-                                <View style={styles.chipLine} />
-                                <View style={styles.chipLineVertical} />
+
+                        {/* Story Elements: PHP to USD */}
+                        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                            <Text style={[styles.storySymbol, { left: '10%', top: '20%', opacity: 0.05, transform: [{ rotate: '-15deg' }] }]}>₱</Text>
+                            <Text style={[styles.storySymbol, { left: '25%', top: '60%', opacity: 0.03, transform: [{ rotate: '10deg' }] }]}>₱</Text>
+                            <Text style={[styles.storySymbol, { right: '25%', top: '15%', opacity: 0.03, transform: [{ rotate: '-10deg' }] }]}>$</Text>
+                            <Text style={[styles.storySymbol, { right: '10%', top: '55%', opacity: 0.05, transform: [{ rotate: '15deg' }] }]}>$</Text>
+                        </View>
+
+                        {/* Artistic Flow Shine Overlays */}
+                        <LinearGradient
+                            colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.3)', 'rgba(255,255,255,0)']}
+                            style={[styles.artisticShine, { top: '-20%', left: '-10%', width: '120%', height: '40%', transform: [{ rotate: '-25deg' }] }]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            pointerEvents="none"
+                        />
+
+                        {/* Branding & Logo */}
+                        <View style={styles.pureCardHeader}>
+                            <Text style={[styles.brandText, { color: theme === 'light' ? '#000000' : '#FFFFFF' }]}>KinnectFi</Text>
+                            <View style={[styles.minimalistLogo, { backgroundColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]} />
+                        </View>
+
+                        {/* Middle Section: Chip */}
+                        <View style={styles.pureCardMiddle}>
+                            <View style={styles.chip}>
+                                <LinearGradient
+                                    colors={['#FFD700', '#E5C100', '#B8860B']}
+                                    style={styles.chipInnerGradient}
+                                />
+                                <View style={styles.chipInner}>
+                                    <View style={styles.chipLine} />
+                                    <View style={styles.chipLine} />
+                                    <View style={styles.chipLine} />
+                                    <View style={styles.chipLineVertical} />
+                                </View>
                             </View>
                         </View>
-                    </View>
 
-                    {/* Bottom Section: Matte Metal Finish */}
-                    <View style={[styles.cardSectionBottom, { borderTopColor: theme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)' }]}>
+                        {/* Bottom Section: Name & Graphic */}
+                        <View style={styles.pureCardBottom}>
+                            <Text style={[styles.cardHolderNameNew, {
+                                color: theme === 'light' ? '#333' : '#E0E0E0',
+                                textShadowColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                textShadowOffset: { width: 0, height: 1 },
+                                textShadowRadius: 1
+                            }]}>
+                                {cardName.toUpperCase() || "YOUR NAME"}
+                            </Text>
+                            <View style={styles.graphicElement}>
+                                <LinearGradient
+                                    colors={['#EB001B', '#F79E1B']}
+                                    style={[styles.graphicHalf, { opacity: 0.9 }]}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                />
+                                <LinearGradient
+                                    colors={['#0033A0', '#0072CE']}
+                                    style={[styles.graphicHalf, { opacity: 0.9 }]}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                />
+                                <View style={styles.graphicOverlay} />
+                            </View>
+                        </View>
+
+                        {/* Premium Shine Overlays */}
                         <LinearGradient
-                            colors={theme === 'light' ? ['#FFFFFF', '#F9F9F9'] : ['#252525', '#1A1A1A']}
+                            colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.4)', 'rgba(255,255,255,0)']}
+                            style={styles.premiumShine}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            pointerEvents="none"
+                        />
+                    </View>
+                </Animated.View>
+
+                {/* Back of the Card */}
+                <Animated.View style={[styles.flipCard, styles.flipCardBack, { transform: [{ rotateY: backInterpolate }], opacity: backOpacity }]}>
+                    <View style={[styles.mainCard, {
+                        backgroundColor: theme === 'light' ? '#E8E8E8' : '#1A1A1A',
+                        borderColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'
+                    }]}>
+                        <LinearGradient
+                            colors={theme === 'light'
+                                ? ['#D8D8D8', '#F5F5F5', '#E8E8E8', '#FFD700', '#DAA520', '#B8860B']
+                                : ['#2A2A2A', '#4A4A4A', '#1A1A1A', '#8B6B00', '#554400', '#332200']}
                             style={StyleSheet.absoluteFill}
                             start={{ x: 0, y: 0 }}
-                            end={{ x: 0, y: 1 }}
+                            end={{ x: 1, y: 1 }}
                         />
-                        <Text style={[styles.cardHolderNameNew, {
-                            color: theme === 'light' ? '#333' : '#E0E0E0',
-                            textShadowColor: theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
-                            textShadowOffset: { width: 0, height: 1 },
-                            textShadowRadius: 1
-                        }]}>
-                            {cardName.toUpperCase() || "INAAYA CHANDRA"}
-                        </Text>
-                        <View style={styles.graphicElement}>
-                            <LinearGradient
-                                colors={['#EB001B', '#F79E1B']}
-                                style={[styles.graphicHalf, { opacity: 0.9 }]}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                            />
-                            <LinearGradient
-                                colors={['#0033A0', '#0072CE']}
-                                style={[styles.graphicHalf, { opacity: 0.9 }]}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                            />
-                            <View style={styles.graphicOverlay} />
+
+                        {/* Magnetic Strip */}
+                        <View style={styles.magneticStrip} />
+
+                        {/* Card Details */}
+                        <View style={styles.cardDetailsBack}>
+                            <View style={styles.detailRow}>
+                                <Text style={[styles.detailLabel, { color: theme === 'light' ? '#666' : '#AAA' }]}>CARD NUMBER</Text>
+                                <Text style={[styles.detailValue, { color: theme === 'light' ? '#000' : '#FFF' }]}>4532 7812 9034 3507</Text>
+                            </View>
+                            <View style={styles.detailGrid}>
+                                <View style={styles.detailRow}>
+                                    <Text style={[styles.detailLabel, { color: theme === 'light' ? '#666' : '#AAA' }]}>EXPIRY</Text>
+                                    <Text style={[styles.detailValue, { color: theme === 'light' ? '#000' : '#FFF' }]}>09/28</Text>
+                                </View>
+                                <View style={styles.detailRow}>
+                                    <Text style={[styles.detailLabel, { color: theme === 'light' ? '#666' : '#AAA' }]}>CVV</Text>
+                                    <Text style={[styles.detailValue, { color: theme === 'light' ? '#000' : '#FFF' }]}>842</Text>
+                                </View>
+                            </View>
+                        </View>
+
+                        {/* Branding Back */}
+                        <View style={styles.brandingBack}>
+                            <Text style={[styles.brandTextSmall, { color: theme === 'light' ? '#000' : '#FFF' }]}>KinnectFi</Text>
                         </View>
                     </View>
-
-                    {/* Premium Shine Overlay */}
-                    <LinearGradient
-                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0)']}
-                        style={styles.premiumShine}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        pointerEvents="none"
-                    />
-                </View>
+                </Animated.View>
             </View>
 
-            <View style={styles.actionGrid}>
+            <View style={styles.actionGridHorizontal}>
                 <TouchableOpacity
                     style={styles.actionItem}
-                    onPress={() => (navigation as any).navigate('Main', { screen: 'Transfer' })}
+                    onPress={toggleFlip}
                 >
                     <View style={[styles.actionIconWrapper, { backgroundColor: theme === 'light' ? '#f5f5f5' : '#1A1A1A' }]}>
-                        <Send size={24} color="#05b959" />
+                        {isFlipped ? <EyeOff size={24} color="#05b959" /> : <Eye size={24} color="#05b959" />}
                     </View>
-                    <Text style={[styles.actionLabel, { color: colors.subtext }]}>Send</Text>
+                    <Text style={[styles.actionLabel, { color: colors.subtext }]}>{isFlipped ? "Hide" : "Details"}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionItem}>
-                    <View style={[styles.actionIconWrapper, { backgroundColor: theme === 'light' ? '#f5f5f5' : '#1A1A1A' }]}>
-                        <ArrowDownLeft size={24} color="#05b959" />
-                    </View>
-                    <Text style={[styles.actionLabel, { color: colors.subtext }]}>Request</Text>
-                </TouchableOpacity>
+
                 <TouchableOpacity
                     style={styles.actionItem}
                     onPress={() => (navigation as any).navigate('Main', { screen: 'Insights' })}
@@ -343,6 +428,7 @@ export default function ExploreScreen() {
                     </View>
                     <Text style={[styles.actionLabel, { color: colors.subtext }]}>Statistic</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
                     style={styles.actionItem}
                     onPress={() => (navigation as any).navigate('CardSettings')}
@@ -438,6 +524,7 @@ const styles = StyleSheet.create({
         color: '#fff',
         lineHeight: 48,
         letterSpacing: -1,
+        width: '70%',
     },
     cardWrapper: {
         flex: 1,
@@ -617,77 +704,28 @@ const styles = StyleSheet.create({
     backButton: {
         marginLeft: -8,
     },
-    stackedCardContainer: {
+    singleCardWrapper: {
         width: "100%",
-        height: 320,
-        position: 'relative',
-        marginBottom: 20,
-    },
-    addCardSlot: {
-        width: "100%",
-        height: 60,
-        borderRadius: 16,
-        backgroundColor: '#222', // More opaque
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        height: 240,
         alignItems: 'center',
-        paddingHorizontal: 20,
+        justifyContent: 'center',
+        marginBottom: 30,
+    },
+    flipCard: {
+        width: "100%",
+        height: 230,
+        backfaceVisibility: 'hidden',
+    },
+    flipCardBack: {
         position: 'absolute',
         top: 0,
-        zIndex: 0,
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-    },
-    addCardText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    addCardIconCircle: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    backgroundCard: {
-        width: "100%",
-        height: 200,
-        borderRadius: 24,
-        position: 'absolute',
-        padding: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 15,
-        elevation: 5,
-    },
-    backgroundCardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    mastercardLogoSmall: {
-        flexDirection: 'row',
-    },
-    logoCircleSmall: {
-        width: 18,
-        height: 18,
-        borderRadius: 9,
-    },
-    backgroundCardNumber: {
-        color: 'rgba(255, 255, 255, 0.5)',
-        fontSize: 14,
-        fontWeight: '600',
     },
     mainCard: {
         width: "100%",
         height: 230,
         borderRadius: 16,
         overflow: "hidden",
-        position: "absolute",
-        backgroundColor: '#121212', // Midnight Onyx
+        backgroundColor: '#121212',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 15 },
         shadowOpacity: 0.6,
@@ -696,35 +734,28 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
     },
-    cardSectionTop: {
-        height: '30%',
+    pureCardHeader: {
+        height: '25%',
         width: '100%',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 24,
-        borderBottomWidth: 0.5,
-        borderBottomColor: 'rgba(255,255,255,0.1)',
-        overflow: 'hidden',
     },
-    cardSectionMiddle: {
-        height: '40%',
+    pureCardMiddle: {
+        height: '50%',
         width: '100%',
         justifyContent: 'center',
         alignItems: 'flex-end',
         paddingHorizontal: 24,
-        overflow: 'hidden',
     },
-    cardSectionBottom: {
-        height: '30%',
+    pureCardBottom: {
+        height: '25%',
         width: '100%',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 24,
-        borderTopWidth: 0.5,
-        borderTopColor: 'rgba(255,255,255,0.1)',
-        overflow: 'hidden',
     },
     minimalistLogo: {
         width: 24,
@@ -735,7 +766,7 @@ const styles = StyleSheet.create({
     cardHolderNameNew: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#E0E0E0', // Silver/White
+        color: '#E0E0E0',
         letterSpacing: 2,
     },
     graphicElement: {
@@ -754,10 +785,12 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.2)',
     },
-    actionGrid: {
+    actionGridHorizontal: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'space-around',
+        alignItems: 'center',
         marginBottom: 40,
+        paddingHorizontal: 10,
     },
     actionItem: {
         alignItems: 'center',
@@ -842,5 +875,59 @@ const styles = StyleSheet.create({
     txTime: {
         fontSize: 12,
         color: 'rgba(255,255,255,0.3)',
+    },
+    brandText: {
+        fontSize: 18,
+        fontWeight: '800',
+        letterSpacing: -0.5,
+        opacity: 0.9,
+    },
+    storySymbol: {
+        position: 'absolute',
+        fontSize: 60,
+        fontWeight: '900',
+        color: '#fff',
+    },
+    artisticShine: {
+        position: 'absolute',
+        zIndex: 5,
+    },
+    // Back of Card Styles
+    magneticStrip: {
+        width: '100%',
+        height: 40,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        marginTop: 30,
+    },
+    cardDetailsBack: {
+        padding: 24,
+        gap: 16,
+    },
+    detailRow: {
+        gap: 4,
+    },
+    detailGrid: {
+        flexDirection: 'row',
+        gap: 40,
+    },
+    detailLabel: {
+        fontSize: 10,
+        fontWeight: '700',
+        letterSpacing: 1,
+    },
+    detailValue: {
+        fontSize: 16,
+        fontWeight: '600',
+        letterSpacing: 2,
+    },
+    brandingBack: {
+        position: 'absolute',
+        bottom: 24,
+        right: 24,
+    },
+    brandTextSmall: {
+        fontSize: 14,
+        fontWeight: '800',
+        opacity: 0.8,
     },
 });

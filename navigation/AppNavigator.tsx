@@ -54,12 +54,12 @@ const CurrencySymbol = ({ color, size }: { color: string; size: number }) => {
     }, []);
 
     return (
-        <View style={{ width: size, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
             <RNText style={{
                 color,
                 fontSize: size + 2,
                 fontWeight: '800',
-                marginTop: -4
+                marginTop: -2
             }}>
                 {symbol}
             </RNText>
@@ -107,14 +107,32 @@ function MainTabs() {
                         ]}
                     />
                 ),
-                tabBarIcon: ({ color, size }) => {
+                tabBarIcon: ({ focused, color, size }) => {
+                    let icon;
+                    const isTransfer = route.name === "Transfer";
+                    const activeIconColor = isTransfer ? "#000000" : "#000000";
+                    const iconColor = focused ? activeIconColor : color;
+
                     if (route.name === "Account") {
-                        return <Home size={size} color={color} />;
-                    } else if (route.name === "Transfer") {
-                        return <CurrencySymbol color={color} size={size} />;
+                        icon = <Home size={size} color={iconColor} />;
+                    } else if (isTransfer) {
+                        icon = <CurrencySymbol color={iconColor} size={size} />;
                     } else if (route.name === "Card") {
-                        return <CreditCard size={size} color={color} />;
+                        icon = <CreditCard size={size} color={iconColor} />;
                     }
+
+                    return (
+                        <View style={styles.tabItemContainer}>
+                            <View style={[
+                                styles.iconContainer,
+                                focused && !isTransfer && { backgroundColor: colors.primary + '15' },
+                                focused && isTransfer && { backgroundColor: 'rgba(0,0,0,0.1)' }
+                            ]}>
+                                {icon}
+                            </View>
+                            {focused && <View style={[styles.activeDot, { backgroundColor: isTransfer ? '#000000' : colors.primary }]} />}
+                        </View>
+                    );
                 },
             })}
         >
@@ -230,3 +248,25 @@ export default function AppNavigator() {
         </NavigationContainer>
     );
 }
+const styles = StyleSheet.create({
+    tabItemContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+    },
+    iconContainer: {
+        width: 52,
+        height: 32,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    activeDot: {
+        width: 4,
+        height: 4,
+        borderRadius: 2,
+        position: 'absolute',
+        bottom: -12,
+    },
+});
